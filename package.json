@@ -1,6 +1,6 @@
 {
   "name": "wing-session-analyzer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Read-only WING snapshot, show and preset analysis for agents, CLI and MCP.",
   "private": true,
   "type": "module",
@@ -9,11 +9,14 @@
   },
   "bin": {
     "wing-session": "./bin/wing-session.mjs",
-    "wing-session-mcp": "./bin/wing-session-mcp.mjs"
+    "wing-session-mcp": "./bin/wing-session-mcp.mjs",
+    "wing-session-pack": "./bin/wing-session-pack.mjs",
+    "wing-session-doctor": "./bin/wing-session-doctor.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "mcp": "node bin/wing-session-mcp.mjs"
+    "mcp": "node bin/wing-session-mcp.mjs",
+    "doctor": "node bin/wing-session-doctor.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.2",

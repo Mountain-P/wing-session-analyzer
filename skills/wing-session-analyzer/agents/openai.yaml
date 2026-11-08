@@ -1,4 +1,4 @@
 interface:
   display_name: "WING Session Analyzer"
-  short_description: "唯讀分析 WING 場次、通道、路由、場景、設定差異與本地引用檔案"
-  default_prompt: "使用 $wing-session-analyzer 分析我提供的 WING 場次，先摘要，再以 JSON Pointer 回答通道與路由問題。"
+  short_description: "唯讀產生 WING 單份與批次場次報告、設定比較、來源索引與路由查詢"
+  default_prompt: "使用 $wing-session-analyzer 分析我提供的 WING 場次，整理配置、需核對項目與未知，並以來源 hash 和 JSON Pointer 支持結論。"

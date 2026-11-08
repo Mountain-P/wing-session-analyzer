@@ -6,6 +6,7 @@ import {
   parseWingDocument, inspectDocument, listChannels, getChannel, searchParameters,
   getParameter, traceRoutes, diffDocuments, analyzeFindings, listScenes,
 } from './analysis.mjs';
+import { buildSessionReport, compareSessions } from './reports.mjs';
 
 export const DEFAULT_MAX_FILE_BYTES = 16 * 1024 * 1024;
 export const DEFAULT_MAX_OUTPUT_BYTES = 256 * 1024;
@@ -30,6 +31,22 @@ function positiveBound(value, fallback, max, name, allowZero = false) {
     fail('INVALID_ARGUMENT', `${name} must be an integer between ${allowZero ? 0 : 1} and ${max}.`);
   }
   return selected;
+}
+
+/** CLI-only inference for explicitly selected targets; explicit MCP/--root values stay strict. */
+export function inferExistingReadRoots(directories) {
+  return [...new Set(directories.map(directory => {
+    let candidate = path.resolve(directory);
+    while (true) {
+      try { if (statSync(candidate).isDirectory()) return candidate; }
+      catch (error) {
+        if (!['ENOENT', 'ENOTDIR', 'EACCES', 'EPERM', 'ENAMETOOLONG', 'ELOOP'].includes(error.code)) throw error;
+      }
+      const parent = path.dirname(candidate);
+      if (parent === candidate) fail('ROOT_INVALID', 'No existing parent directory could be accessed for a selected target.');
+      candidate = parent;
+    }
+  }))];
 }
 
 /** Root-confined, read-only local file operations shared by the CLI and MCP. */
@@ -92,6 +109,10 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
         bytes += result.bytesRead;
       }
       if (bytes > maxFileBytes) fail('FILE_TOO_LARGE', `Session exceeds the ${maxFileBytes}-byte input limit.`);
+      const finished = await handle.stat();
+      if (finished.size !== opened.size || finished.mtimeMs !== opened.mtimeMs || finished.ctimeMs !== opened.ctimeMs) {
+        fail('FILE_CHANGED', 'The selected file changed while it was read; retry the analysis.');
+      }
       const current = await fs.realpath(location.candidate);
       if (current !== location.canonical || !allowed.some(root => inside(root, current))) fail('FILE_CHANGED', 'The selected file path changed while it was read; retry the analysis.');
       const buffer = Buffer.concat(chunks, bytes);
@@ -106,7 +127,7 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
           sha256: createHash('sha256').update(buffer).digest('hex'),
           bytes,
           sourceType: 'local-file',
-          parserVersion: '0.1.0',
+          parserVersion: '0.2.0',
         },
       };
     } catch (error) {
@@ -189,6 +210,60 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
     });
   }
 
+  function selectedFiles(paths) {
+    if (!Array.isArray(paths) || paths.length < 1 || paths.length > 100 || paths.some(file => typeof file !== 'string' || !file || file.length > 4096 || file.includes('\0'))) {
+      fail('INVALID_ARGUMENT', 'Select between 1 and 100 explicit local file paths.');
+    }
+    return paths;
+  }
+  function fileError(error) {
+    return { code: typeof error?.code === 'string' ? error.code.slice(0, 80) : 'ANALYSIS_ERROR', message: String(error?.message || 'Analysis failed.').slice(0, 2048) };
+  }
+
+  async function batch({ paths, offset, limit } = {}) {
+    const files = selectedFiles(paths);
+    const selectedOffset = positiveBound(offset, 0, 1_000_000, 'offset', true);
+    const selectedLimit = positiveBound(limit, 3, 20, 'limit');
+    const items = [];
+    for (const [position, filePath] of files.slice(selectedOffset, selectedOffset + selectedLimit).entries()) {
+      try {
+        const { doc, evidence } = await readDocument(filePath);
+        const report = buildSessionReport(doc, { offset: 0, limit: 5 });
+        items.push({ index: selectedOffset + position + 1, path: filePath, status: 'ok', report: { ...report, evidence } });
+      } catch (error) { items.push({ index: selectedOffset + position + 1, path: filePath, status: 'error', error: fileError(error) }); }
+    }
+    const succeeded = items.filter(item => item.status === 'ok').length;
+    return bounded({
+      schemaVersion: 'wing-session-batch.v1',
+      summary: { total: files.length, examined: items.length, succeeded, failed: items.length - succeeded, countsScope: 'returned-page' },
+      items, total: files.length, offset: selectedOffset, limit: selectedLimit,
+      hasMore: selectedOffset + selectedLimit < files.length,
+      limitations: ['Only this page of explicitly selected files was read. Each report contains its first 5 entries per paged section; follow its paging or create a report package for complete sections.', 'Per-file errors are preserved; a completed batch does not mean every file succeeded.'],
+    });
+  }
+
+  async function index({ paths, ...options } = {}) {
+    const files = selectedFiles(paths), selection = page(options), entries = [], byHash = new Map();
+    for (const [position, filePath] of files.entries()) {
+      try {
+        const { doc, evidence } = await readDocument(filePath);
+        const inspected = inspectDocument(doc);
+        entries.push({ index: position + 1, path: filePath, status: 'ok', kind: doc.kind, type: doc.type, coverage: doc.coverage, channels: inspected.channels, scenes: inspected.scenes, evidence });
+        if (!byHash.has(evidence.sha256)) byHash.set(evidence.sha256, []);
+        byHash.get(evidence.sha256).push({ index: position + 1, path: filePath });
+      } catch (error) { entries.push({ index: position + 1, path: filePath, status: 'error', error: fileError(error) }); }
+    }
+    const duplicates = [...byHash.entries()].filter(([, copies]) => copies.length > 1).map(([sha256, files]) => ({ sha256, files }));
+    const succeeded = entries.filter(item => item.status === 'ok').length;
+    return bounded({
+      schemaVersion: 'wing-session-index.v1',
+      summary: { total: files.length, succeeded, failed: files.length - succeeded, duplicateGroups: duplicates.length, repeatedCopies: duplicates.reduce((sum, group) => sum + group.files.length - 1, 0), countsScope: 'all-selected-files' },
+      items: entries.slice(selection.offset, selection.offset + selection.limit), duplicates,
+      total: files.length, offset: selection.offset, limit: selection.limit, hasMore: selection.offset + selection.limit < files.length,
+      limitations: ['All explicitly selected files are read for inventory counts and exact-byte duplicate groups; only item details are paged.', 'Matching hashes identify identical bytes, not semantic equivalence or a preferred/correct configuration.', 'No directory discovery or recursive loading of referenced files is performed.'],
+    });
+  }
+
   return Object.freeze({
     roots: [...allowed],
     inspect: args => one(args, inspectDocument),
@@ -205,6 +280,13 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
     },
     scenes: args => one(args, listScenes, true),
     assets,
+    report: args => one({ ...args, limit: args.limit === undefined ? 10 : args.limit }, buildSessionReport, true),
+    compare: async ({ before, after, ...options }) => {
+      const [a, b] = await Promise.all([readDocument(before), readDocument(after)]);
+      return bounded({ ...compareSessions(a.doc, b.doc, page(options)), evidence: { before: a.evidence, after: b.evidence } });
+    },
+    batch,
+    index,
     diff: async ({ before, after, ...options }) => {
       const [a, b] = await Promise.all([readDocument(before), readDocument(after)]);
       const result = diffDocuments(a.doc, b.doc, page(options));
