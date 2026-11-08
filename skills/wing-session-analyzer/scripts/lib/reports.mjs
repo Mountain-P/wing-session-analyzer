@@ -85,11 +85,20 @@ function routeSummary(doc, channel, { maxSamples = 3 } = {}) {
     const patch = graph.edges.find(edge => edge.kind === 'output_patch' && edge.to === node.id);
     const assignment = patch && graph.edges.find(edge => edge.kind === 'user_signal' && edge.to === patch.from);
     const source = patch && graph.nodes.find(candidate => candidate.id === patch.from);
+    const insertOwner = source?.kind === 'fx_send' && graph.edges.find(edge => edge.kind === 'fx_send' && edge.to === source.id);
     return {
       id: node.id, bank: node.bank, number: node.number, sourcePointer: node.sourcePointer,
       status: node.source?.status ?? 'not_determined', source: patch?.from ?? null, sourceExists: source?.exists ?? null,
       reference: patch?.reference ?? node.source?.reference ?? null, side: patch?.side ?? null,
       ...(patch?.raw !== undefined || node.source?.raw !== undefined ? { raw: COPY(patch?.raw ?? node.source.raw) } : {}),
+      ...(['fx_send', 'monitor'].includes(source?.kind) ? { virtualSource: {
+        kind: source.kind, sourcePointer: source.sourcePointer,
+        ...(source.kind === 'monitor' ? { label: source.label, runtimeSelection: source.runtimeSelection } : {
+          routingRole: source.routingRole,
+          ...(insertOwner ? { insertOwner: { source: insertOwner.from, position: insertOwner.position,
+            sourcePointer: insertOwner.sourcePointer, insertEnabled: COPY(insertOwner.insertEnabled) } } : {}),
+        }),
+      } } : {}),
       ...(assignment ? { userSignal: {
         source: assignment.from, sourcePointer: assignment.sourcePointer, raw: COPY(assignment.raw ?? source?.assignment?.value ?? null),
         ...(assignment.side !== undefined ? { side: assignment.side } : {}),
@@ -102,7 +111,8 @@ function routeSummary(doc, channel, { maxSamples = 3 } = {}) {
     supported: true, interpretation: graph.interpretation, audibleOutput: graph.audibleOutput, maxDepth: graph.maxDepth,
     reachableNodes: graph.nodes.filter(node => node.contextOnly !== true).length,
     contextNodes: graph.nodes.filter(node => node.contextOnly === true).length, observedEdges: graph.edges.length,
-    coverage: COPY(graph.coverage),
+    // Codec capabilities and whole-document patch counts are shared by every strip.
+    coverage: { physicalOutputMapping: graph.coverage.physicalOutputMapping, reportPointer: '/sections/routing' },
     direct: { items: direct.slice(0, 8), total: direct.length, hasMore: direct.length > 8 },
     outputs: { items: outputSamples, total: outputs.length, hasMore: outputs.length > maxSamples, maxSamples, countsScope: 'traced-downstream-patches' },
     unresolved: { total: graph.unresolved.length, byCode, items: graph.unresolved.slice(0, maxSamples).map(({ raw, ...issue }) => issue), hasMore: graph.unresolved.length > maxSamples },
@@ -125,8 +135,7 @@ export function buildSessionReport(value, { kind = 'all', offset = 0, limit = 10
   const doc = documentOf(value), overview = inspectDocument(doc);
   const channels = listChannels(doc, { kind, offset, limit });
   channels.items = channels.items.map(channel => ({ ...compactChannel(channel), processing: processing(doc, channel.sourcePointer), routes: routeSummary(doc, channel) }));
-  const routingCoverage = channels.items.find(channel => channel.routes.supported)?.routes.coverage
-    ?? traceRoutes(doc, { kind: 'ch', number: 1, maxDepth: 0 }).coverage;
+  const routingCoverage = traceRoutes(doc, { kind: 'ch', number: 1, maxDepth: 0 }).coverage;
   const allFindings = collect(options => analyzeFindings(doc, options));
   const byCode = {}, bySeverity = {};
   for (const finding of allFindings) {
@@ -277,6 +286,17 @@ function renderSingle(report) {
           const reference = output.reference;
           const label = reference ? `${reference.group} ${reference.number}${reference.side ? ` ${reference.side}` : ''}` : output.source || output.status;
           lines.push(`  - ${markdown(`${output.bank} ${output.number}`)} ← ${markdown(label)}; raw selector ${display(output.raw)}; ${markdown(output.sourcePointer)}.`);
+          if (output.virtualSource) {
+            const source = output.virtualSource;
+            if (source.kind === 'monitor') lines.push(`    - Monitor ${markdown(source.label)}; configuration ${markdown(source.sourcePointer)}; live solo and source selection are not determined.`);
+            else {
+              lines.push(`    - Configured FX insert send, not the processed FX return; ${markdown(source.sourcePointer)}.`);
+              if (source.insertOwner) {
+                const owner = source.insertOwner;
+                lines.push(`    - Stored insert owner ${markdown(owner.source)} (${markdown(owner.position)}); insert enabled ${factText(owner.insertEnabled)}; ${markdown(owner.sourcePointer)}. Bypass is not simulated as a routing disconnect.`);
+              }
+            }
+          }
           if (output.userSignal) {
             const signal = output.userSignal;
             lines.push(`    - User Signal assignment from ${markdown(signal.source)}; stored selector ${display(signal.raw)}; ${markdown(signal.sourcePointer)}${signal.channelTap ? `; channel tap ${factText(signal.channelTap)} (${markdown(signal.channelTap.sourcePointer)})` : ''}.`);

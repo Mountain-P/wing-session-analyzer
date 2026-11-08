@@ -36,7 +36,7 @@ test('known logical source encodings decode interleaved sides and retain encoded
 
 test('decoding does not fabricate unknown groups, invalid indices or newer-version compatibility', () => {
   const doc = parseWingDocument(make());
-  for (const group of ['CH', 'SEND', 'MON', '__proto__', 'toString']) assert.equal(decodeRoutingSource(doc, { grp: group, in: 1 }, '/patch').status, 'unsupported_group');
+  for (const group of ['CH', 'UNKNOWN', '__proto__', 'toString']) assert.equal(decodeRoutingSource(doc, { grp: group, in: 1 }, '/patch').status, 'unsupported_group');
   for (const [group, index] of [['BUS', 33], ['MAIN', 9], ['MTX', 17], ['USR', 57]]) assert.equal(decodeRoutingSource(doc, { grp: group, in: index }, '/patch').status, 'invalid_index');
   for (const index of [0, -1, 1.5, '1', null]) assert.equal(decodeRoutingSource(doc, { grp: 'BUS', in: index }, '/patch').status, 'invalid_reference');
   const newer = make(); newer.type = 'snapshot.12';
@@ -139,11 +139,11 @@ test('selected-false and runtime-unknown input candidates are not followed as co
   assert.equal(edge(trace, 'output:LCL:4').from, 'main:2');
 });
 
-test('matrix direct INPUT tokens remain named sources, not falsely equated to a physical AES port', () => {
-  const raw = make(); raw.ae_data.mtx['1'].dir = { on: true, in: 'MON.PH', lvl: -12 };
+test('matrix internal monitor bus remains named, not falsely equated to a physical AES port or monitor output', () => {
+  const raw = make(); raw.ae_data.mtx['1'].dir = { on: true, in: 'MON.BUS', lvl: -12 };
   const trace = traceOutputRoutes(parseWingDocument(raw), { bank: 'LCL', number: 5 });
   assert.ok(trace.edges.some(item => item.kind === 'matrix_direct_input' && item.to === 'mtx:1'));
-  assert.ok(trace.nodes.some(node => node.kind === 'direct_input_source' && node.token === 'MON.PH' && node.physicalMapping === 'not_expanded'));
+  assert.ok(trace.nodes.some(node => node.kind === 'direct_input_source' && node.token === 'MON.BUS' && node.physicalMapping === 'not_expanded'));
   assert.equal(trace.nodes.some(node => node.id === 'input:AES:1'), false);
   raw.ae_data.mtx['1'].dir.in = 'BUS.3';
   assert.ok(traceOutputRoutes(parseWingDocument(raw), { bank: 'LCL', number: 5 }).unresolved.some(item => item.code === 'DIRECT_INPUT_TOKEN_UNRESOLVED'));

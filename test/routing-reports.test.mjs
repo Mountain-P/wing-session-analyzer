@@ -82,7 +82,7 @@ test('User Signal summaries retain raw tap/side evidence without replacing it wi
 test('output samples are bounded while complete counts and codec status remain explicit', () => {
   const source = document();
   source.ae_data.io.out.USB = Object.fromEntries(Array.from({ length: 12 }, (_, index) => [index + 1, { grp: 'MAIN', in: index % 2 + 1 }]));
-  source.ae_data.io.out.USB['13'] = { grp: 'MON', in: 1 };
+  source.ae_data.io.out.USB['13'] = { grp: 'UNKNOWN', in: 1 };
   const report = buildSessionReport(source, { kind: 'main', limit: 1 });
   const routes = report.channels.items[0].routes;
   assert.equal(routes.outputs.total, 12);

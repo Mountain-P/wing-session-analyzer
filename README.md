@@ -152,7 +152,9 @@ node bin/wing-session.mjs diff /path/before.snap /path/after.snap --prefix /ae_d
 
 Wing Edit 3.3.4 的離線 UI 選擇與原生 SAVE 實驗已建立 `snapshot.11` 的輸出 BUS／MAIN／MTX 左右交錯編碼、USR 1–24 的處理後 strip 來源，以及 USR 25–56 的原始輸入 patch 形狀。`user.tap=PRE` 在 CH／AUX 的介面是 **TAP**，不能統一解釋為 pre-fader；左右／加總由 `user.lr` 另存。原始來源直接 patch 到輸出時，工具會呈現直通關係，不能將它算成使用相同輸入的處理通道之下游。
 
-輸出左右側只表示 patch 選到來源的哪一側，不模擬每一級的 stereo、tap 或 DSP 行為。未知版本、未建立的群組／索引及不完整資料保留原值與未解析狀態；檔案內的輸出槽位也不是實際硬體端口驗證。查詢方式與精確界線見 [路由追蹤指南](skills/wing-session-analyzer/references/routing-guide.md)，控制實驗的公開摘錄見 [routing-experiments.json](docs/routing-experiments.json)。
+`SEND` 解碼為 FX SEND 1–16 的 L／R，沿保存的 insert assignment 查詢其送出來源；它不代表處理後的 FX return，重複 owner 會列為未確定候選。`MON` 解碼為 PHONES／SPEAKERS 的 L／R，並展開 `/ae_data/cfg/mon/N` 保存的 `src` 與 `dirin` 依賴。這些依賴不等於當前實際選中的監聽訊號；solo／PFL／SIP、dim、talkback 等狀態保留未知。
+
+輸出左右側只表示 patch 選到來源的哪一側，不模擬每一級的 stereo、tap 或 DSP 行為。未知版本、未建立的群組／索引及不完整資料保留原值與未解析狀態；檔案內的輸出槽位也不是實際硬體端口驗證。查詢方式與精確界線見 [路由追蹤指南](skills/wing-session-analyzer/references/routing-guide.md)，控制實驗的公開摘錄見 [原始路由實驗](docs/routing-experiments.json)與 [SEND／MON 實驗](docs/send-mon-experiments.json)。
 
 ## MCP 設定
 

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createAnalyzerService, inferExistingReadRoots } from './lib/service.mjs';
 import { renderMarkdownReport } from './lib/reports.mjs';
 
-const VERSION = '0.3.0';
+const VERSION = '0.4.0';
 const MAX_RESPONSE_BYTES = 262144;
 const methods = { inspect: 'inspect', channels: 'channels', channel: 'channel', search: 'search', get: 'parameter', routes: 'routes', 'output-routes': 'outputRoutes', diff: 'diff', findings: 'findings', scenes: 'scenes', assets: 'assets', report: 'report', compare: 'compare', batch: 'batch', index: 'index' };
 const multiCommands = new Set(['batch', 'index']);

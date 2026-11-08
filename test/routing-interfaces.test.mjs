@@ -6,7 +6,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { createWingMcpServer } from '../src/mcp.mjs';
+import { createWingMcpServer, SERVER_VERSION } from '../src/mcp.mjs';
 import { parseCliArgs, runCli } from '../skills/wing-session-analyzer/scripts/wing-session.mjs';
 import { createAnalyzerService } from '../skills/wing-session-analyzer/scripts/lib/service.mjs';
 
@@ -76,7 +76,7 @@ test('shared service forward/reverse routes agree on decoded patch sides and kee
   const forward = await service.routes({ path: f.file, kind: 'ch', number: 1 });
   const hash = createHash('sha256').update(original).digest('hex');
   assert.equal(forward.evidence.sha256, hash);
-  assert.equal(forward.evidence.parserVersion, '0.3.0');
+  assert.equal(forward.evidence.parserVersion, SERVER_VERSION);
   const expected = [
     ['USB', 1, 'bus:1', 'L'], ['USB', 2, 'bus:1', 'R'],
     ['USB', 3, 'main:2', 'R'], ['LCL', 1, 'mtx:8', 'R'],

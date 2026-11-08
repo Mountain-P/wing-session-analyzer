@@ -39,8 +39,11 @@
 | STD EQ 的 `1f`、`1g`、`1q` 等 | 對應段的頻率、dB 增減與 Q；`eq/on=false` 時，仍可能保留參數值。它們不構成整體音色或現場頻率響應的量測。 |
 | `mute`、`fdr` | 通道自身靜音與保存的推桿值。`-144` 是已觀察到的最低值；DCA、mute-group、tap 與現場狀態仍可能影響有效結果。 |
 | `main/K/on`、`send/K/on` | 已明確啟用的送出；查閱同一節點的 level、pre／mode。不同送出可能是並行分支，不要自動串成一條路徑。 |
+| `preins/ins`、`postins/ins` | `NONE`／`FX1`–`FX16` 的 insert assignment；`on` 另外保存 bypass，CH postins 另有 `mode`。AUX 沒有已建立的 postins。FX SEND 依 assignment 追蹤，不將其等同處理後的 FX return。 |
 
-其他通道族或動態／效果器模型先呈現原始節點及模型；未建立的參數語義保持未知。`snapshot.11` 的輸出 BUS／MAIN／MTX 來源採左右交錯索引，USR Direct Out 則使用另一套邏輯 strip 編號及獨立 `tap`／`lr`。已驗證的規則、來源直通及 Matrix Direct Input 的界線見 [routing-guide.md](routing-guide.md)；未知版本或編碼仍保留未解析狀態。
+其他通道族或動態／效果器模型先呈現原始節點及模型；未建立的參數語義保持未知。`snapshot.11` 的輸出 BUS／MAIN／MTX／SEND／MON 來源採左右交錯索引，USR Direct Out 則使用另一套邏輯 strip 編號及獨立 `tap`／`lr`。SEND 的語意節點參照 `/ae_data/fx/N`，MON 參照 `/ae_data/cfg/mon/N`；它們不是 `/ae_data/io/in` 下的原始實體輸入。
+
+監聽的 `/ae_data/cfg/mon/N/src` 與 `dirin` 是保存的邏輯 strip token，編號不含左右側。`srclvl`、`srcmix`、`lvl` 是分開的保存值，不能以單一很低的 level 推定整個 MON 來源未啟用。`/ae_data/cfg/solo` 只提供設定背景，不證明某個通道目前正在 solo。具體 token、來源直通與 Matrix Direct Input 的界線見 [routing-guide.md](routing-guide.md)；未知版本或編碼仍保留未解析狀態。
 
 ## Show 與本地引用
 

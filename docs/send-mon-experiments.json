@@ -1,0 +1,560 @@
+{
+  "schemaVersion": "wing-send-mon-experiments.v1",
+  "date": "2026-11-09",
+  "application": {
+    "name": "WING-Edit",
+    "version": "3.3.4",
+    "runtimePlatform": "macOS arm64",
+    "runtimeBinarySha256": "2aa6aafcf96ad09e6bd946eb164765f4bb8a7437ec984fbd6257c97dc43db530",
+    "staticPlatform": "Linux x86-64 ELF",
+    "staticBinarySha256": "2076aaf75a100eae9fb3d517116b624f6f3a5b8f556ed8b61595062eab34ce4a"
+  },
+  "method": {
+    "successfulNativeArtifacts": 9,
+    "controlledVariants": 8,
+    "runtime": "Disconnected editor UI choices and native SAVE, followed by exact JSON Pointer checks and file hashes. No console was connected for these experiments.",
+    "publication": "Only minimal numeric/enum field observations and hashes are distributed. Full native snapshots, autosave state, installers and user sessions remain local.",
+    "static": "Focused symbol-sized table and objdump inspection of the supplied ELF, not new REA Evidence. Static observations do not establish live audio behavior.",
+    "branches": "Cases 00–06 use the prior synthetic state. After intermittent UI automation non-response, autosave state was backed up and a clean editor state used for 10–11. No claim that the monitor output patch and changed source were saved together: tests add explicit synthetic probes for the isolated monitor settings."
+  },
+  "cases": [
+    {
+      "id": "00",
+      "nativeSave": "00-baseline.snap",
+      "sha256": "5b77bab392252bf42fe8bf5708c87e907f51f8308ae0dbb08ca2f2752f1d6692",
+      "type": "snapshot.11",
+      "method": "offline_native_baseline_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/cfg/mon/1/src",
+          "value": "MAIN.1",
+          "expectedGraph": {
+            "source": "main:1",
+            "kind": "monitor_source"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/dirin",
+          "value": "OFF",
+          "expectedGraph": {
+            "status": "off"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srclvl",
+          "value": 0
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srcmix",
+          "value": -144
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/lvl",
+          "value": -144
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          },
+          "meaning": "Metadata for FX slot; this is not a saved FX send owner selector."
+        }
+      ]
+    },
+    {
+      "id": "01",
+      "nativeSave": "01-send1L.snap",
+      "sha256": "debd49021414c523564915a14a0e5125c06f42b3377b4c211fbfe80e8baaf6b9",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "SEND",
+            "in": 1
+          },
+          "uiSelection": "FX SEND 1L",
+          "expectedGraph": {
+            "source": "fx_send:1",
+            "side": "L"
+          }
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "nativeSave": "02-send1R.snap",
+      "sha256": "95036befd6e74afbd39443384394fab9e1965f055c3bbaf43c45d128d264a34c",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "SEND",
+            "in": 2
+          },
+          "uiSelection": "FX SEND 1R",
+          "expectedGraph": {
+            "source": "fx_send:1",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "nativeSave": "03-send2L.snap",
+      "sha256": "5b5bd33e78f3c5527460c0ad466aa2b21c584f69156da01bde50034bc7fa1fbb",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "SEND",
+            "in": 3
+          },
+          "uiSelection": "FX SEND 2L",
+          "expectedGraph": {
+            "source": "fx_send:2",
+            "side": "L"
+          }
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "nativeSave": "04-send16L.snap",
+      "sha256": "ce161dc57d70b3f6af5ad626077afccce8f03f1b2097838f63b8bbd78101b85c",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "SEND",
+            "in": 31
+          },
+          "uiSelection": "FX SEND 16L",
+          "expectedGraph": {
+            "source": "fx_send:16",
+            "side": "L"
+          }
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "nativeSave": "05-send16R.snap",
+      "sha256": "55600766c242c80fc6d01dc74aebc16b316713acb320fa377190a84f96318c49",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "SEND",
+            "in": 32
+          },
+          "uiSelection": "FX SEND 16R",
+          "expectedGraph": {
+            "source": "fx_send:16",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "nativeSave": "06-mon-phonesL.snap",
+      "sha256": "a19000f0279d040c65bbb0b62648948b83c003dfcd2ce4a167c0c095c77e41b0",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "MON",
+            "in": 1
+          },
+          "uiSelection": "PHONES 1L",
+          "expectedGraph": {
+            "source": "monitor:1",
+            "side": "L"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/src",
+          "value": "MAIN.1",
+          "expectedGraph": {
+            "source": "main:1",
+            "kind": "monitor_source"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/dirin",
+          "value": "OFF",
+          "expectedGraph": {
+            "status": "off"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srclvl",
+          "value": 0
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srcmix",
+          "value": -144
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/lvl",
+          "value": -144
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "nativeSave": "10-phones-src-bus16.snap",
+      "sha256": "4cc108eb602c398d7d30a5b64e50dce1fe085e4e372ba052d7a51d9db3edc3d0",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/cfg/mon/1/src",
+          "value": "BUS.16",
+          "expectedGraph": {
+            "source": "bus:16",
+            "kind": "monitor_source"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/dirin",
+          "value": "OFF",
+          "expectedGraph": {
+            "status": "off"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srclvl",
+          "value": 0
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srcmix",
+          "value": -144
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/lvl",
+          "value": -144
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "nativeSave": "11-phones-src-bus16-direct-ch40.snap",
+      "sha256": "c739166abc2855fed9229eaf7d9bfddaf7a60cedcbe2b128ab0ec60f2e261afa",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/cfg/mon/1/src",
+          "value": "BUS.16",
+          "expectedGraph": {
+            "source": "bus:16",
+            "kind": "monitor_source"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/dirin",
+          "value": "CH.40",
+          "expectedGraph": {
+            "source": "ch:40",
+            "kind": "monitor_direct_input"
+          }
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srclvl",
+          "value": 0
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/srcmix",
+          "value": -144
+        },
+        {
+          "pointer": "/ae_data/cfg/mon/1/lvl",
+          "value": -144
+        }
+      ]
+    }
+  ],
+  "uiLabelObservations": [
+    {
+      "group": "MON",
+      "cards": [
+        "PHONES 1L",
+        "PHONES 1R",
+        "SPEAKERS 2L",
+        "SPEAKERS 2R"
+      ],
+      "nativeSavedIndices": [
+        1
+      ],
+      "basis": "All four labels were visible in the Routing source group. Only MON/in=1 received a completed native output SAVE in this pass. Other indices are corroborated by the native source construction and enum count, not four completed saves."
+    }
+  ],
+  "uncompletedExperiments": [
+    {
+      "requested": "Native SAVE of MON phones R and speakers L/R",
+      "result": "Phones R selection was visible, but subsequent UI automation did not open SAVE; no resulting native artifacts were obtained. A restart and separate clean-state branch were attempted. No native saved-case claim is made for these selections."
+    },
+    {
+      "requested": "Speaker source MTX.8 and further FX insert ownership/duplicate/on-off experiments",
+      "result": "UI automation stopped navigating/opening the requested menus before these experiments could be completed. Cause is undetermined; do not attribute this to a verified vendor defect. Editor closed afterward. FX ownership remains static-only evidence."
+    }
+  ],
+  "staticCorroboration": {
+    "send": {
+      "selector": {
+        "group": "SEND",
+        "encodedRange": [
+          1,
+          32
+        ],
+        "logicalFxRange": [
+          1,
+          16
+        ],
+        "number": "ceil(in/2)",
+        "side": "odd L, even R",
+        "role": "FX insert send, not processed FX return",
+        "sourceConstruction": {
+          "address": "0x58c140",
+          "dspSource": "0x1d0 + zero-based source index"
+        }
+      },
+      "ownerPointers": [
+        "/ae_data/ch/N/preins",
+        "/ae_data/ch/N/postins",
+        "/ae_data/aux/N/preins",
+        "/ae_data/bus/N/preins",
+        "/ae_data/bus/N/postins",
+        "/ae_data/main/N/preins",
+        "/ae_data/main/N/postins",
+        "/ae_data/mtx/N/preins",
+        "/ae_data/mtx/N/postins"
+      ],
+      "insertTokens": [
+        "NONE",
+        "FX1",
+        "FX2",
+        "FX3",
+        "FX4",
+        "FX5",
+        "FX6",
+        "FX7",
+        "FX8",
+        "FX9",
+        "FX10",
+        "FX11",
+        "FX12",
+        "FX13",
+        "FX14",
+        "FX15",
+        "FX16"
+      ],
+      "channelPostModes": [
+        "FX",
+        "AUTO_X",
+        "AUTO_Y"
+      ],
+      "assignmentTable": {
+        "address": "0x6294600",
+        "symbolBytes": 136
+      },
+      "ownerResolution": {
+        "address": "0x516530",
+        "meaning": "One native owner is allocated per FX; duplicate claims are not a sum. Assignment allocation and insert.on are separate. Analyzer retains conflicts without simulating native priority."
+      },
+      "runtimeEvidence": "No completed native insert-owner or bypass/conflict experiment in this pass."
+    },
+    "monitor": {
+      "selector": {
+        "group": "MON",
+        "encodedRange": [
+          1,
+          4
+        ],
+        "pairs": {
+          "1": "PHONES",
+          "2": "SPEAKERS"
+        },
+        "number": "ceil(in/2)",
+        "side": "odd L, even R",
+        "sourceConstruction": "0x58ad00"
+      },
+      "configPointers": [
+        "/ae_data/cfg/mon/1",
+        "/ae_data/cfg/mon/2"
+      ],
+      "srcTokens": [
+        "OFF",
+        "MAIN.1",
+        "MAIN.2",
+        "MAIN.3",
+        "MAIN.4",
+        "MTX.1",
+        "MTX.2",
+        "MTX.3",
+        "MTX.4",
+        "MTX.5",
+        "MTX.6",
+        "MTX.7",
+        "MTX.8",
+        "BUS.1",
+        "BUS.2",
+        "BUS.3",
+        "BUS.4",
+        "BUS.5",
+        "BUS.6",
+        "BUS.7",
+        "BUS.8",
+        "BUS.9",
+        "BUS.10",
+        "BUS.11",
+        "BUS.12",
+        "BUS.13",
+        "BUS.14",
+        "BUS.15",
+        "BUS.16",
+        "AUX.1",
+        "AUX.2",
+        "AUX.3",
+        "AUX.4",
+        "AUX.5",
+        "AUX.6",
+        "AUX.7",
+        "AUX.8"
+      ],
+      "dirinTokens": [
+        "OFF",
+        "CH.1",
+        "CH.2",
+        "CH.3",
+        "CH.4",
+        "CH.5",
+        "CH.6",
+        "CH.7",
+        "CH.8",
+        "CH.9",
+        "CH.10",
+        "CH.11",
+        "CH.12",
+        "CH.13",
+        "CH.14",
+        "CH.15",
+        "CH.16",
+        "CH.17",
+        "CH.18",
+        "CH.19",
+        "CH.20",
+        "CH.21",
+        "CH.22",
+        "CH.23",
+        "CH.24",
+        "CH.25",
+        "CH.26",
+        "CH.27",
+        "CH.28",
+        "CH.29",
+        "CH.30",
+        "CH.31",
+        "CH.32",
+        "CH.33",
+        "CH.34",
+        "CH.35",
+        "CH.36",
+        "CH.37",
+        "CH.38",
+        "CH.39",
+        "CH.40",
+        "AUX.1",
+        "AUX.2",
+        "AUX.3",
+        "AUX.4",
+        "AUX.5",
+        "AUX.6",
+        "AUX.7",
+        "AUX.8",
+        "BUS.1",
+        "BUS.2",
+        "BUS.3",
+        "BUS.4",
+        "BUS.5",
+        "BUS.6",
+        "BUS.7",
+        "BUS.8",
+        "BUS.9",
+        "BUS.10",
+        "BUS.11",
+        "BUS.12",
+        "BUS.13",
+        "BUS.14",
+        "BUS.15",
+        "BUS.16",
+        "MAIN.1",
+        "MAIN.2",
+        "MAIN.3",
+        "MAIN.4",
+        "MTX.1",
+        "MTX.2",
+        "MTX.3",
+        "MTX.4",
+        "MTX.5",
+        "MTX.6",
+        "MTX.7",
+        "MTX.8"
+      ],
+      "srcTable": {
+        "address": "0x6294f40",
+        "symbolBytes": 296
+      },
+      "dirinTable": {
+        "address": "0x6294cc0",
+        "symbolBytes": 616
+      },
+      "updateFunction": {
+        "address": "0x519bf0",
+        "symbolBytes": 2375
+      },
+      "levels": [
+        "srclvl",
+        "srcmix",
+        "lvl"
+      ],
+      "runtimeBoundary": "Saved src and dirin are configured dependencies. Current Solo/PFL/SIP, mute, dim and source-level/mix selection are not determined."
+    },
+    "matrixMonitorInputs": {
+      "basis": "Static token and DSP selector mapping; no new native matrix direct-input experiment in this pass.",
+      "MON.PH": "monitor:1",
+      "MON.SPK": "monitor:2",
+      "MON.BUS": "Distinct internal monitor/solo bus; keep live contribution set unresolved."
+    }
+  },
+  "reproduction": [
+    "In disconnected WING Edit 3.3.4, SAVE an offline synthetic baseline.",
+    "In Routing output mode, select LCL output 1 and unlock local patch editing.",
+    "Choose FX SEND; select each source card and confirm the destination label before a separate SAVE.",
+    "Choose MONITOR; observe PHONES/SPEAKERS labels and SAVE each completed patch separately.",
+    "In Monitor PHONES settings select SOURCE BUS.16, SAVE; select DIRECT IN CH40 and SAVE again.",
+    "Hash each file and compare the exact field values listed here. A filename or browsed group alone does not prove the patch committed."
+  ],
+  "limitations": [
+    "Decoder applies only to snapshot.11; unknown groups, tokens and versions remain explicit.",
+    "Static range/owner/control observations are distinguished from successful native saves.",
+    "FX owner uniqueness is scoped to assignments included in the document, not complete runtime ownership.",
+    "No processed FX return, DSP bypass/stereo propagation or active Solo contribution simulation.",
+    "Native UI control is not physical console, cabling or audible-output validation."
+  ]
+}

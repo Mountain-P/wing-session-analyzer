@@ -42,6 +42,8 @@ wing-session index <path> [more-paths...] [options]
 
 **「這個 USB／Local 輸出收到哪些來源？」** 用 `output-routes` 指定實際 bank／number；閱讀 `direction`、`outputs`、上游邊及未解析項目。圖中的邊仍是來源 → 目的地。需要核對正向結果時，從其中的 strip 再查 routes。原始輸入直接送往輸出的配置，不經過使用該輸入的處理通道；候選但未確定選用的來源也不能當成已生效依賴。左右側、User Signal 與深度定義見 [routing-guide.md](routing-guide.md)。
 
+**「這個輸出選 FX SEND／MON，前面接什麼？」** 仍由 `output-routes` 指定輸出，沿 `fx_send` 或 `monitor` 節點讀取保存的 insert／監聽依賴。FX 重複 owner 是候選衝突，不當成多來源加總；MON 的 `src`／`dirin` 也不是排他的即時來源。需要完整原值時，另以 `get` 查 `/ae_data/fx/N`、strip 的 `preins`／`postins` 或 `/ae_data/cfg/mon/N`。不要用未支援的 `routes --kind fx`／`mon`；節點、控制值與即時界線見 [routing-guide.md](routing-guide.md)。
+
 **「為何某通道沒有聲音？」** 核對已保存的 source、mute、fader、sends、目標 bus／main 與相關 Pointer。把 findings 描述為排查線索；檔案不能觀察實際前級訊號、外接接線、控台目前狀態或喇叭。
 
 **「A 與 B 差在哪裡？」** 用 compare 取得兩份來源 hash、完整變更數和依通道／類別分組的摘要，再分頁閱讀具體變更。compare 只解讀已知欄位的名稱；未知欄位保留 Pointer。預設包含 metadata 且保留 missing／null 差異；需要原始差異可查 diff。使用者只要音訊設定變更時可明確加 `--ignore-metadata`，報告寫出忽略範圍。跨版本／部分文件比較不等於已模擬召回或證明實際音訊影響。

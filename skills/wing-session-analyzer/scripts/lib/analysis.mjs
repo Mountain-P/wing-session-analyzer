@@ -117,7 +117,7 @@ function sourceReference(doc, channelParts, connection, groupKey, inputKey) {
   const input = fact(doc.data, [...channelParts, 'in', 'conn', inputKey]);
   const result = { sourcePointer: pointer([...channelParts, 'in', 'conn']), group, input, status: 'not_included' };
   if (!group.exists || !input.exists) return result;
-  const decoded = decodeRoutingSource(doc, { grp: group.value, in: input.value }, result.sourcePointer);
+  const decoded = decodeRoutingSource(doc, { grp: group.value, in: input.value }, result.sourcePointer, { consumer: 'channel_input' });
   if (decoded.status === 'off') return { ...result, status: 'off' };
   if (decoded.status !== 'decoded') return { ...result, status: 'unrecognized_reference', decoding: decoded };
   result.reference = decoded.reference;
