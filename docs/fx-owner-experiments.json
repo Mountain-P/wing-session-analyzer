@@ -1,0 +1,951 @@
+{
+  "schemaVersion": "wing-fx-owner-experiments.v1",
+  "date": "2026-11-09",
+  "application": {
+    "name": "WING-Edit",
+    "version": "3.3.4",
+    "runtimePlatform": "macOS arm64",
+    "runtimeBinarySha256": "2aa6aafcf96ad09e6bd946eb164765f4bb8a7437ec984fbd6257c97dc43db530",
+    "staticPlatform": "Linux x86-64 ELF",
+    "staticBinarySha256": "2076aaf75a100eae9fb3d517116b624f6f3a5b8f556ed8b61595062eab34ce4a"
+  },
+  "method": {
+    "successfulNativeArtifacts": 11,
+    "preparedInputArtifacts": 4,
+    "runtime": "Offline synthetic editor state; ordinary GUI changes or explicitly prepared JSON LOAD, actual UI observations, native SAVE, then exact field and SHA-256 checks. No console connected. Baseline restored and editor quit after testing.",
+    "publication": "Only whitelisted insert objects, FX metadata, observed UI text and full-file hashes are published. Full native snapshots, prepared full inputs, autosaves, installers, OEM resources and user sessions are excluded. These scalar records are not native recall templates.",
+    "baseline": {
+      "type": "snapshot.11",
+      "insertSelectorCount": 144,
+      "allInsertSelectors": "NONE",
+      "allFxModels": "NONE",
+      "scope": "40 CH with PRE/POST, 8 AUX with PRE, 16 BUS with PRE/POST, 4 MAIN with PRE/POST, 8 MTX with PRE/POST"
+    },
+    "distinction": "Ordinary occupied-slot GUI reassignment clears the old selector only after Confirm. Duplicate claims were created by controlled JSON preparation, LOADed into the native editor, then preserved by native SAVE. UI owner labels are observations separate from serialized fields.",
+    "static": "Focused symbol-sized objdump inspection of the supplied ELF; not new REA Evidence. Static arbitration and UI behavior are corroborated by the controlled samples below."
+  },
+  "preparedInputs": [
+    {
+      "id": "10",
+      "preparedFile": "10-proposal-ch1-pre-ch2-post.snap",
+      "sha256": "c6962c6622451eb0a8a379d1fd4a714cc4f3a17f987b2d95bcaffae745c1dbed",
+      "type": "snapshot.11",
+      "origin": "analysis-authored JSON input, not a native SAVE artifact",
+      "baselineId": "00",
+      "patches": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "preparedFile": "13-proposal-reversed-ch-order.snap",
+      "sha256": "198b512d1e7c483bf9c559b1b0157e831763e71d0cab354b3c89f50c1f7d432a",
+      "type": "snapshot.11",
+      "origin": "analysis-authored JSON input, not a native SAVE artifact",
+      "baselineId": "00",
+      "patches": [
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        }
+      ],
+      "preparation": "Same values as 10; reverse CH object key order before serializing. This is a carrier-order experiment, not another field change."
+    },
+    {
+      "id": "20",
+      "preparedFile": "20-proposal-ch1-pre-post.snap",
+      "sha256": "1a9d2291d7cc11ec098af1a9a26931d9c4fece10f64eda907849f4f0aaf233a6",
+      "type": "snapshot.11",
+      "origin": "analysis-authored JSON input, not a native SAVE artifact",
+      "baselineId": "00",
+      "patches": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": true,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "30",
+      "preparedFile": "30-proposal-cross-family.snap",
+      "sha256": "adc3eda8aff9a66142833a14fb5b13d9d0ebfa2d3871b19a724833384536b4c2",
+      "type": "snapshot.11",
+      "origin": "analysis-authored JSON input, not a native SAVE artifact",
+      "baselineId": "00",
+      "patches": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/40/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX2",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/aux/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX2"
+          }
+        },
+        {
+          "pointer": "/ae_data/aux/8/preins",
+          "value": {
+            "on": false,
+            "ins": "FX3"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/1/postins",
+          "value": {
+            "on": false,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/2/preins",
+          "value": {
+            "on": false,
+            "ins": "FX3"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/16/postins",
+          "value": {
+            "on": false,
+            "ins": "FX4"
+          }
+        },
+        {
+          "pointer": "/ae_data/main/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX4"
+          }
+        },
+        {
+          "pointer": "/ae_data/main/4/postins",
+          "value": {
+            "on": false,
+            "ins": "FX5"
+          }
+        },
+        {
+          "pointer": "/ae_data/mtx/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX5"
+          }
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "00",
+      "nativeSave": "00-baseline.snap",
+      "sha256": "c739166abc2855fed9229eaf7d9bfddaf7a60cedcbe2b128ab0ec60f2e261afa",
+      "type": "snapshot.11",
+      "method": "offline_native_baseline_save",
+      "action": "Save the existing synthetic baseline; all 144 insert selectors are NONE.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": false,
+            "ins": "NONE"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": []
+    },
+    {
+      "id": "01",
+      "nativeSave": "01-ch1-pre-fx1-off.snap",
+      "sha256": "d53397bbde0fd76ca0379673063985a1cf6b0b09152be86cffeb84ac8d39ea58",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "HOME > CH1 PRE INSERT > FX PROCESSOR > FX1. Leave ON off; FX PROCESSOR shows FX1 and FX TYPE controls are present.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [],
+      "sourceId": "00"
+    },
+    {
+      "id": "02",
+      "nativeSave": "02-ch1-pre-fx1-on.snap",
+      "sha256": "5d25850c1d19bd36c3efe6c0f538332a29c6881b2404f865ce9db547a4939be5",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "Enable CH1 PRE INSERT. FX processor slot 1 shows CH 1 / INSERT PRE.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 1,
+          "position": "preins",
+          "label": "CH 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "01"
+    },
+    {
+      "id": "03",
+      "nativeSave": "03-reassign-cancel.snap",
+      "sha256": "5d25850c1d19bd36c3efe6c0f538332a29c6881b2404f865ce9db547a4939be5",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "Select CH2 POST INSERT > FX PROCESSOR > occupied FX1; choose Cancel. Subsequent SAVE is byte-identical to 02.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [],
+      "sourceId": "02",
+      "observedDialog": {
+        "title": "FX PROCESSOR IN USE! WOULD YOU LIKE TO REASSIGN IT?",
+        "body": "FX WILL BE REMOVED FROM CH 1 PRE",
+        "buttons": [
+          "Confirm",
+          "Cancel"
+        ],
+        "chosen": "Cancel"
+      }
+    },
+    {
+      "id": "04",
+      "nativeSave": "04-reassign-confirm-ch2-post.snap",
+      "sha256": "cada5e8723f4a325c561d51436173d010dc964aceb740485575961f1aaadb8ac",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "Repeat the occupied FX1 selection and choose Confirm. CH1 PRE selector becomes NONE while its ON remains true; CH2 POST becomes FX1 while ON remains false.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "NONE"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 2,
+          "position": "postins",
+          "label": "CH 2 / INSERT POST",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "03",
+      "observedDialog": {
+        "title": "FX PROCESSOR IN USE! WOULD YOU LIKE TO REASSIGN IT?",
+        "body": "FX WILL BE REMOVED FROM CH 1 PRE",
+        "buttons": [
+          "Confirm",
+          "Cancel"
+        ],
+        "chosen": "Confirm"
+      }
+    },
+    {
+      "id": "11",
+      "nativeSave": "11-duplicate-ch1-pre-ch2-post-roundtrip.snap",
+      "sha256": "60493063d5e58ef1d9e9a1286e235e7f24d3f58e492ae87d4d881a5fa308435f",
+      "type": "snapshot.11",
+      "method": "prepared_json_load_ui_observation_then_native_save",
+      "action": "LOAD prepared duplicate claims. Observe slot 1 owner CH2 POST although CH1 PRE is on and CH2 POST off. CH1 PRE retains FX1 but FX TYPE controls are absent when that loser is selected. SAVE retains both claims.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 2,
+          "position": "postins",
+          "label": "CH 2 / INSERT POST",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "10"
+    },
+    {
+      "id": "12",
+      "nativeSave": "12-clear-winner-ch2-post.snap",
+      "sha256": "5d25850c1d19bd36c3efe6c0f538332a29c6881b2404f865ce9db547a4939be5",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "Clear CH2 POST with FX PROCESSOR > NONE. Slot 1 changes to CH1 PRE; SAVE is byte-identical to 02.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 1,
+          "position": "preins",
+          "label": "CH 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "11"
+    },
+    {
+      "id": "14",
+      "nativeSave": "14-reversed-order-roundtrip.snap",
+      "sha256": "60493063d5e58ef1d9e9a1286e235e7f24d3f58e492ae87d4d881a5fa308435f",
+      "type": "snapshot.11",
+      "method": "prepared_json_load_ui_observation_then_native_save",
+      "action": "LOAD the same duplicate values with the entire CH object key order reversed. Slot 1 still shows CH2 POST; native SAVE is byte-identical to 11.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 2,
+          "position": "postins",
+          "label": "CH 2 / INSERT POST",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "13"
+    },
+    {
+      "id": "21",
+      "nativeSave": "21-duplicate-ch1-pre-post-roundtrip.snap",
+      "sha256": "5e3a7db0985568a6ac599352dd2edc3a2d53d294eff8d85b6b379c2a76495984",
+      "type": "snapshot.11",
+      "method": "prepared_json_load_ui_observation_then_native_save",
+      "action": "LOAD CH1 PRE off and POST on both selecting FX1. Slot 1 shows CH1 PRE; SAVE retains both claims.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": true,
+            "mode": "FX",
+            "ins": "FX1",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 1,
+          "position": "preins",
+          "label": "CH 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "20"
+    },
+    {
+      "id": "31",
+      "nativeSave": "31-duplicate-cross-family-roundtrip.snap",
+      "sha256": "fc41c11f68dbbf5585d97c28e8ba7ea3d474373fc07a44495ed3c2d8eee3d097",
+      "type": "snapshot.11",
+      "method": "prepared_json_load_ui_observation_then_native_save",
+      "action": "LOAD five duplicate pairs spanning all strip families. Observe the five slot labels; native SAVE retains all ten claims.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/40/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "FX2",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/aux/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX2"
+          }
+        },
+        {
+          "pointer": "/ae_data/aux/8/preins",
+          "value": {
+            "on": false,
+            "ins": "FX3"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/1/postins",
+          "value": {
+            "on": false,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/2/preins",
+          "value": {
+            "on": false,
+            "ins": "FX3"
+          }
+        },
+        {
+          "pointer": "/ae_data/bus/16/postins",
+          "value": {
+            "on": false,
+            "ins": "FX4"
+          }
+        },
+        {
+          "pointer": "/ae_data/main/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX4"
+          }
+        },
+        {
+          "pointer": "/ae_data/main/4/postins",
+          "value": {
+            "on": false,
+            "ins": "FX5"
+          }
+        },
+        {
+          "pointer": "/ae_data/mtx/1/preins",
+          "value": {
+            "on": false,
+            "ins": "FX5"
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/2",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/3",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/4",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/5",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "bus",
+          "number": 1,
+          "position": "postins",
+          "label": "BUS 1 / INSERT POST",
+          "origin": "observed_native_ui_not_serialized_owner"
+        },
+        {
+          "fx": 2,
+          "kind": "aux",
+          "number": 1,
+          "position": "preins",
+          "label": "AUX 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        },
+        {
+          "fx": 3,
+          "kind": "bus",
+          "number": 2,
+          "position": "preins",
+          "label": "BUS 2 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        },
+        {
+          "fx": 4,
+          "kind": "main",
+          "number": 1,
+          "position": "preins",
+          "label": "MAIN 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        },
+        {
+          "fx": 5,
+          "kind": "mtx",
+          "number": 1,
+          "position": "preins",
+          "label": "MATRIX 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "30"
+    },
+    {
+      "id": "40",
+      "nativeSave": "40-ch2-post-auto-x.snap",
+      "sha256": "05ff482fa8b274cdc0225aeba7601a417b09724dde9a46eb8349dda43d9cc994",
+      "type": "snapshot.11",
+      "method": "offline_ui_change_then_native_save",
+      "action": "Switch CH2 POST from FX to AUTO-X. SAVE records mode AUTO_X and ins NONE. Selecting CH1 PRE and opening FX PROCESSOR shows slot 1 owner CH1 PRE.",
+      "observations": [
+        {
+          "pointer": "/ae_data/ch/1/preins",
+          "value": {
+            "on": true,
+            "ins": "FX1"
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/1/postins",
+          "value": {
+            "on": false,
+            "mode": "FX",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/postins",
+          "value": {
+            "on": false,
+            "mode": "AUTO_X",
+            "ins": "NONE",
+            "w": 0
+          }
+        },
+        {
+          "pointer": "/ae_data/fx/1",
+          "value": {
+            "mdl": "NONE",
+            "fxmix": 100
+          }
+        }
+      ],
+      "observedUiOwners": [
+        {
+          "fx": 1,
+          "kind": "ch",
+          "number": 1,
+          "position": "preins",
+          "label": "CH 1 / INSERT PRE",
+          "origin": "observed_native_ui_not_serialized_owner"
+        }
+      ],
+      "sourceId": "14"
+    }
+  ],
+  "checks": {
+    "byteIdenticalNativeGroups": [
+      [
+        "02",
+        "03",
+        "12"
+      ],
+      [
+        "11",
+        "14"
+      ]
+    ],
+    "loadedClaimsRetainedBySave": [
+      [
+        "10",
+        "11"
+      ],
+      [
+        "13",
+        "14"
+      ],
+      [
+        "20",
+        "21"
+      ],
+      [
+        "30",
+        "31"
+      ]
+    ],
+    "derivedOwnerKeysAbsentFromEveryNativeSave": [
+      "$a_chn",
+      "$a_pos",
+      "$stat"
+    ]
+  },
+  "staticCorroboration": {
+    "insertUpdate": "Cinsert::update at 0x516530",
+    "guiReassignment": "InsertView::handleMessage at 0x724cb0",
+    "rule": "The inspected allocator scans unified strip indices 75 down to 0, checking PRE before POST within each strip; the first FX slot claimant reserves it, later claimants get a derived unavailable status. Allocation precedes the ON-dependent processing path.",
+    "unifiedIndices": {
+      "ch": "0–39",
+      "aux": "40–47",
+      "bus": "48–63",
+      "main": "64–67",
+      "mtx": "68–75"
+    },
+    "sampleBoundary": "Seven duplicate pairs plus the reversed-key-order repeat corroborate representative priority comparisons; not an exhaustive 144-position or 16-slot runtime test."
+  },
+  "analysisContract": {
+    "fxOwnershipEvidenceBasis": "native-save-samples-and-static-configured-assignments",
+    "uniqueRecordedClaim": "A configured insert-send relationship within recorded document assignments; never an audible-output verdict. The saved ON value is retained, not used to delete the assignment.",
+    "multipleRecordedClaims": "Retain FX_SEND_OWNER_AMBIGUOUS and context-only fx_send_candidate edges; do not promote the UI winner from this experiment into a persisted owner field or traverse ambiguous candidates.",
+    "scope": "UI allocation observations from these full controlled inputs do not prove active owner in a different, partial, scoped, malformed or unknown-version document."
+  },
+  "limitations": [
+    "All FX models were NONE. These experiments validate selection, UI allocation and serialization, not effect DSP, sound or live send signal.",
+    "No physical WING or audio measurement was used. No hardware firmware behavior or cross-platform runtime equivalence is established.",
+    "Runtime derived owner/status keys were absent from every saved file; the analyzer does not recreate the native allocator.",
+    "The same-strip PRE/POST and cross-family comparisons are representative controlled samples, not a full slot/strip-state sweep."
+  ]
+}

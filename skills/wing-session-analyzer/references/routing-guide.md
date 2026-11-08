@@ -75,11 +75,17 @@ node '<skill-dir>/scripts/wing-session.mjs' output-routes '/sessions/show.snap' 
 
 `SEND` 是 **FX SEND**，代表送往 FX insert 的來源，與通道的 `send/K` 以及處理後的 FX return 不同。通用 selector `{grp:"SEND",in:3}` 是 FX SEND 2L；圖中使用 `fx_send:2` 節點，參照 `/ae_data/fx/2` 的模型與 mix 資料，不補造 `/ae_data/io/in/SEND/3`。
 
-上游 owner 由 strip 的 `preins.ins`／`postins.ins` 保存，已建立 token 為 `NONE`、`FX1`–`FX16`。CH、BUS、MAIN、MTX 有 pre／post insert；AUX 僅建立 pre insert。CH postins 另外有 `mode=FX/AUTO_X/AUTO_Y`：只有明確的 FX 模式可作為已建立的 FX send owner，automix 不當成 FX 指派。
+保存的 FX 指派來自 strip 的 `preins.ins`／`postins.ins`，已建立 token 為 `NONE`、`FX1`–`FX16`。CH、BUS、MAIN、MTX 有 pre／post insert；AUX 僅建立 pre insert。CH postins 另外有 `mode=FX/AUTO_X/AUTO_Y`：只有明確的 FX 模式可作為已建立的 FX send owner，automix 不當成 FX 指派。原生實驗將 CH 2 POST 從 FX 切至 AUTO-X 後，SAVE 記錄 `mode="AUTO_X"`、`ins="NONE"`、`on=false`，FX 1 槽改顯示 CH 1 PRE；AUTO-Y 尚無同等控制實驗。
 
 只有一個合格的保存 assignment 時，`fx_send` 邊將它連到對應 send 節點，保留 insert Pointer、原值、位置與 `insertEnabled`。`on` 是另外保存的 bypass 控制；它不抹除 assignment，也不能推導 bypass 時的 DSP send／return 行為。看到 model `NONE`、mix 或開關時，先報保存值，不自行補出處理後的返回路徑。
 
 多個 insert 同時聲稱同一個 FX 時，原生程式有 owner 仲裁；本工具不模擬此仲裁，也不將候選加總。`FX_SEND_OWNER_AMBIGUOUS` 與 `fx_send_candidate` 保留衝突，候選邊 `traversed=false`，不沿它們繼續當成確定路徑。缺少 owner 的 `FX_SEND_OWNER_NOT_IN_DOCUMENT` 也不等於該 FX 在現場未指派，因為部分文件可能省略其他 strips。Owner 唯一性的範圍只限這份文件實際記錄的 assignments。
+
+WING Edit 3.3.4 的後續原生實驗區分兩種操作：在 HOME 的 PRE／POST INSERT → **FX PROCESSOR** 選取已占用的 FX 時，介面詢問 `FX PROCESSOR IN USE! WOULD YOU LIKE TO REASSIGN IT?`，並列出將移除的舊 owner。Cancel 的保存檔（03）與操作前的單一指派狀態（02）逐位元相同；Confirm 將舊 CH 1 PRE 的 `ins` 清為 `NONE`、保留其 `on=true`，再指派給原為 off 的 CH 2 POST。**FX TYPE** 選的是模型，與 processor assignment 分開。
+
+載入預先建立的重複 assignment，則可同時保留兩個聲稱並原生 SAVE；FX 槽的 owner 標示只顯示其中一個。已測 CH 1 PRE on／CH 2 POST off 的 owner 是 CH 2 POST，清除它後 CH 1 PRE 重新成為 owner，保存結果與原單一 assignment 基準相同。反轉整個 CH 物件的 key 順序再次載入，仍顯示 CH 2 POST，原生 SAVE 與原重複案例逐位元相同。CH 1 PRE off／CH 1 POST on 的 owner 是 PRE。因此 `on` 不是這些樣本的 owner 優先條件，也不能由 owner 標示推定有聲音。
+
+跨族群樣本另觀察到 BUS 1 POST 優於 CH 1 PRE、AUX 1 PRE 優於 CH 40 POST、BUS 2 PRE 優於 AUX 8 PRE、MAIN 1 PRE 優於 BUS 16 POST，以及 MTX 1 PRE 優於 MAIN 4 POST。這些樣本佐證靜態掃描的部分優先序，沒有完整覆蓋所有 strip、位置、模型與版本。實驗中的 FX 模型全為 `NONE`；FX 槽 owner 標示是編輯器載入後的衍生狀態，本輪 SAVE 未序列化 `$a_chn`、`$a_pos` 或 insert `$stat`。不能只憑稀疏文件的 key 順序、開關或單一聲稱，推定完整原生執行狀態。
 
 ### MON 與保存的監聽來源
 
@@ -108,11 +114,11 @@ Monitor 會展開兩種保存的依賴，token 的編號都是邏輯 strip 編�
 
 ## 實驗證據與重現界線
 
-公開的[首輪路由實驗](https://github.com/Mountain-P/wing-session-analyzer/blob/main/docs/routing-experiments.json)與 [SEND／MON 實驗](https://github.com/Mountain-P/wing-session-analyzer/blob/main/docs/send-mon-experiments.json)保留操作描述、原始參數、Pointer 和原生保存檔的 hash。它們是合成測試場次的最小摘錄，沒有附完整原廠 snapshot、安裝包或客戶場次。
+公開的[首輪路由實驗](https://github.com/Mountain-P/wing-session-analyzer/blob/main/docs/routing-experiments.json)、[SEND／MON 實驗](https://github.com/Mountain-P/wing-session-analyzer/blob/main/docs/send-mon-experiments.json)與後續 [FX owner 實驗](https://github.com/Mountain-P/wing-session-analyzer/blob/main/docs/fx-owner-experiments.json)保留操作描述、原始參數、Pointer 和原生保存檔的 hash。它們是合成測試場次的最小摘錄，沒有附完整原廠 snapshot、安裝包或客戶場次。
 
 SEND／MON 這輪取得 9 份原生保存檔，含基準與 8 個控制變體：SEND 的保存 index 為 1、2、3、31、32；MON 輸出成功保存的是 index 1（PHONES L），監聽設定另成功保存 `src="BUS.16"` 與 `dirin="CH.40"`。其餘 MON 來源卡片的 PHONES 1L／1R、SPEAKERS 2L／2R 標示有 UI 觀察與靜態對照，未取得各 index 的獨立原生 SAVE；不得稱為四個輸出 index 全部完成回存實驗。
 
-FX insert owner、bypass、automix 模式與重複 owner 仲裁這輪依 native 靜態分析建立界線，未完成對應的原生控制存檔。來源 index 的成功保存不會替這些上游分支補上 runtime 證據。互動中有未完成的點擊／存檔操作，僅記為未完成實驗，不由此歸因為原廠程式錯誤。
+前一輪 SEND／MON 實驗當時對 FX insert owner、bypass、automix 與重複 owner 仲裁只有 native 靜態佐證；其 ledger 保留當時的覆蓋範圍。後續 FX owner 實驗取得 11 份原生保存檔（含基準），涵蓋 7 組不同的重複指派及一次 CH key 反序重測，另補上 GUI 重新指派的 Confirm／Cancel、on／off 與 AUTO-X 切換。這些是 Mac WING Edit 3.3.4 的離線觀察，不是實體控台、FX 音訊或聲學測試；個別成功的 owner 樣本也不涵蓋所有 automix 與 FX 模型行為。
 
 只有成功原生保存的對照列為 SAVE 佐證。首輪未完成保存的 USB 指派，以及僅載入或顯示的通道 BUS 輸入，不當成已完成 roundtrip 的案例；靜態編碼對照與成功保存的觀察分開列示。SEND 的每個 owner 模式／衝突，以及 MON 的每個 token／即時狀態，不因來源 index 已驗證便自動宣稱全部實測。
 

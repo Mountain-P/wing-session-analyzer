@@ -76,7 +76,7 @@ try {
   });
   await check('Official MCP SDK and actual stdio server', async () => {
     const [{ Client }, { StdioClientTransport }] = await Promise.all([import('@modelcontextprotocol/sdk/client/index.js'), import('@modelcontextprotocol/sdk/client/stdio.js')]);
-    client = new Client({ name: 'wing-readiness-check', version: '0.4.0' });
+    client = new Client({ name: 'wing-readiness-check', version: '0.4.1' });
     const transport = new StdioClientTransport({ command: process.execPath, args: [fileURLToPath(new URL('./wing-session-mcp.mjs', import.meta.url)), '--root', temporary], stderr: 'pipe' });
     await timed(() => client.connect(transport));
     const list = await timed(() => client.listTools());
@@ -99,5 +99,5 @@ finally {
   if (temporary) await fs.rm(temporary, { recursive: true, force: true });
 }
 const ok = checks.length >= 9 && checks.every(result => result.status === 'pass');
-process.stdout.write(JSON.stringify({ ok, version: '0.4.0', scope: 'Synthetic local files and MCP stdio only; no console, network discovery or real session validation.', checks, ...(!ok ? { nextStep: 'Confirm Node.js >=20 and run npm ci in this repository, then repeat this command.' } : {}) }, null, 2) + '\n');
+process.stdout.write(JSON.stringify({ ok, version: '0.4.1', scope: 'Synthetic local files and MCP stdio only; no console, network discovery or real session validation.', checks, ...(!ok ? { nextStep: 'Confirm Node.js >=20 and run npm ci in this repository, then repeat this command.' } : {}) }, null, 2) + '\n');
 process.exitCode = ok ? 0 : 1;

@@ -127,7 +127,7 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
           sha256: createHash('sha256').update(buffer).digest('hex'),
           bytes,
           sourceType: 'local-file',
-          parserVersion: '0.4.0',
+          parserVersion: '0.4.1',
         },
       };
     } catch (error) {

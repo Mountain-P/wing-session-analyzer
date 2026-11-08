@@ -8,7 +8,7 @@ const USER_LOGICAL = Object.freeze({ CH: { kind: 'ch', max: 40 }, AUX: { kind: '
 const SPECIAL = Object.freeze({ SEND: { kind: 'fx_send', max: 32 }, MON: { kind: 'monitor', max: 4 } });
 const EVIDENCE_BASIS = Object.freeze({
   sendSelector: 'native-save-samples-and-static-range',
-  fxOwnership: 'static-configured-assignments-only',
+  fxOwnership: 'native-save-samples-and-static-configured-assignments',
   monitorSelector: 'native-save-sample-ui-labels-and-static-range',
   monitorDependencies: 'native-saved-samples-and-static-enums',
   matrixMonitorInputs: 'static-token-mapping',

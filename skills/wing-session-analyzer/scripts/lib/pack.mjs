@@ -22,7 +22,7 @@ export async function createReportPack({ inputs, output, roots, baseline } = {})
   try { await fs.mkdir(destination, { mode: 0o700 }); }
   catch (error) { if (error.code === 'EEXIST') fail('OUTPUT_EXISTS', 'The output path already exists. Select a new report directory.'); throw error; }
   const manifest = {
-    schemaVersion: 'wing-session-pack.v1', analyzerVersion: '0.4.0', startedAt: new Date().toISOString(),
+    schemaVersion: 'wing-session-pack.v1', analyzerVersion: '0.4.1', startedAt: new Date().toISOString(),
     output: destination, baseline: baselineEvidence, status: 'in-progress', complete: false,
     summary: { total: inputs.length, succeeded: 0, failed: 0 }, items: [],
     limitations: [

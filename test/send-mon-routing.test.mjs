@@ -280,11 +280,11 @@ test('non-string insert and monitor tokens remain raw unresolved data without co
   }
 });
 
-test('new routing coverage distinguishes sampled saves from static-only ownership and matrix mapping', () => {
+test('routing coverage distinguishes sampled ownership saves from static-only matrix mapping', () => {
   const graph = output(make(), 1);
   assert.deepEqual(graph.coverage.evidenceBasis, {
     sendSelector: 'native-save-samples-and-static-range',
-    fxOwnership: 'static-configured-assignments-only',
+    fxOwnership: 'native-save-samples-and-static-configured-assignments',
     monitorSelector: 'native-save-sample-ui-labels-and-static-range',
     monitorDependencies: 'native-saved-samples-and-static-enums',
     matrixMonitorInputs: 'static-token-mapping',

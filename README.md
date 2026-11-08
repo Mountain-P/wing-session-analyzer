@@ -154,7 +154,9 @@ Wing Edit 3.3.4 的離線 UI 選擇與原生 SAVE 實驗已建立 `snapshot.11` 
 
 `SEND` 解碼為 FX SEND 1–16 的 L／R，沿保存的 insert assignment 查詢其送出來源；它不代表處理後的 FX return，重複 owner 會列為未確定候選。`MON` 解碼為 PHONES／SPEAKERS 的 L／R，並展開 `/ae_data/cfg/mon/N` 保存的 `src` 與 `dirin` 依賴。這些依賴不等於當前實際選中的監聽訊號；solo／PFL／SIP、dim、talkback 等狀態保留未知。
 
-輸出左右側只表示 patch 選到來源的哪一側，不模擬每一級的 stereo、tap 或 DSP 行為。未知版本、未建立的群組／索引及不完整資料保留原值與未解析狀態；檔案內的輸出槽位也不是實際硬體端口驗證。查詢方式與精確界線見 [路由追蹤指南](skills/wing-session-analyzer/references/routing-guide.md)，控制實驗的公開摘錄見 [原始路由實驗](docs/routing-experiments.json)與 [SEND／MON 實驗](docs/send-mon-experiments.json)。
+後續 FX owner 原生控制實驗確認：從 GUI 重新指派已占用的 FX 會要求確認，確認後才清除舊 assignment；載入合成的重複 assignment 時，原生 SAVE 則保留多個聲稱，FX 槽只顯示仲裁後的一個 owner。將 insert 的 `on` 設為 false 不會清除 assignment，已測樣本也顯示 off 的 insert 可成為 owner。這些結果佐證部分靜態仲裁順序，工具仍保留重複 owner 為候選，不從任意不完整場次推定唯一有效 owner。
+
+輸出左右側只表示 patch 選到來源的哪一側，不模擬每一級的 stereo、tap 或 DSP 行為。未知版本、未建立的群組／索引及不完整資料保留原值與未解析狀態；檔案內的輸出槽位也不是實際硬體端口驗證。查詢方式與精確界線見 [路由追蹤指南](skills/wing-session-analyzer/references/routing-guide.md)，控制實驗的公開摘錄見 [原始路由實驗](docs/routing-experiments.json)、[SEND／MON 實驗](docs/send-mon-experiments.json)與 [FX owner 實驗](docs/fx-owner-experiments.json)。
 
 ## MCP 設定
 
