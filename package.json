@@ -1,6 +1,6 @@
 {
   "name": "wing-session-analyzer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Read-only WING snapshot, show and preset analysis for agents, CLI and MCP.",
   "private": true,
   "type": "module",

@@ -57,12 +57,12 @@ async function memoryClient(t, options) {
   return client;
 }
 
-test('official SDK initializes and exposes fourteen explicit read-only tools with bounded schemas', async t => {
+test('official SDK initializes and exposes fifteen explicit read-only tools with bounded schemas', async t => {
   const f = await fixture(t);
   const client = await memoryClient(t, { roots: [f.root] });
   assert.equal(client.getServerVersion().name, 'wing-session-analyzer');
   const { tools } = await client.listTools();
-  assert.deepEqual(tools.map(tool => tool.name).sort(), ['wing_inspect', 'wing_channels', 'wing_channel', 'wing_search', 'wing_get_parameter', 'wing_routes', 'wing_diff', 'wing_findings', 'wing_scenes', 'wing_check_assets', 'wing_report', 'wing_compare', 'wing_batch', 'wing_index'].sort());
+  assert.deepEqual(tools.map(tool => tool.name).sort(), ['wing_inspect', 'wing_channels', 'wing_channel', 'wing_search', 'wing_get_parameter', 'wing_routes', 'wing_output_routes', 'wing_diff', 'wing_findings', 'wing_scenes', 'wing_check_assets', 'wing_report', 'wing_compare', 'wing_batch', 'wing_index'].sort());
   for (const tool of tools) {
     assert.deepEqual(tool.annotations, { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false });
     assert.equal(tool.inputSchema.type, 'object');
@@ -211,7 +211,7 @@ test('MCP requires explicit roots and a real stdio child initializes without std
   const client = new Client({ name: 'wing-stdio-test', version: '1.0.0' });
   t.after(() => client.close());
   await client.connect(transport);
-  assert.equal((await client.listTools()).tools.length, 14);
+  assert.equal((await client.listTools()).tools.length, 15);
   assert.equal(decoded(await client.callTool({ name: 'wing_inspect', arguments: { path: f.a } })).ok, true);
 });
 

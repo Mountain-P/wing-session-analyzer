@@ -32,7 +32,7 @@
 | 相對於 `/ae_data/ch/N` 的位置 | 解讀方式 |
 | --- | --- |
 | `name`、`col`、`clink` | `clink=false` 使用通道自訂名稱／顏色；`true` 會跟隨目前來源的 metadata，並不是 stereo-link 開關。原生空名稱的顯示 fallback 尚未完整模擬。 |
-| `in/conn/grp`、`in/conn/in` | Primary 來源的群組與序號；alternate 是 `altgrp`、`altin`。 |
+| `in/conn/grp`、`in/conn/in` | Primary 來源的群組與序號；alternate 是 `altgrp`、`altin`。`snapshot.11` 的 BUS／MAIN／MTX 序號包含左右側，依路由 codec 解碼，不直接當邏輯 strip 編號。 |
 | `in/set/srcauto`、`in/set/altsrc` | `srcauto=false` 且 `altsrc` 明確為布林值時，才可確定檔案選擇 primary／alternate。自動或省略旗標時，實際來源保持未知。 |
 | `flt/lc`、`flt/lcf` | 已保存的 high-pass／low-cut 開關與 Hz 值。 |
 | `eq/on`、`eq/mdl` | EQ 開關與模型；先看模型，再解讀它的參數，不能把 STD 欄位套到所有模型。 |
@@ -40,7 +40,7 @@
 | `mute`、`fdr` | 通道自身靜音與保存的推桿值。`-144` 是已觀察到的最低值；DCA、mute-group、tap 與現場狀態仍可能影響有效結果。 |
 | `main/K/on`、`send/K/on` | 已明確啟用的送出；查閱同一節點的 level、pre／mode。不同送出可能是並行分支，不要自動串成一條路徑。 |
 
-其他通道族或動態／效果器模型先呈現原始節點及模型；未建立的參數語義保持未知。實體輸出來源序號可能編入 stereo 左右側，目前路由工具會保留未解碼的原值，不將它直接當成邏輯 bus／main 編號。
+其他通道族或動態／效果器模型先呈現原始節點及模型；未建立的參數語義保持未知。`snapshot.11` 的輸出 BUS／MAIN／MTX 來源採左右交錯索引，USR Direct Out 則使用另一套邏輯 strip 編號及獨立 `tap`／`lr`。已驗證的規則、來源直通及 Matrix Direct Input 的界線見 [routing-guide.md](routing-guide.md)；未知版本或編碼仍保留未解析狀態。
 
 ## Show 與本地引用
 

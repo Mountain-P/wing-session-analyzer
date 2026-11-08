@@ -1,0 +1,732 @@
+{
+  "schemaVersion": "wing-routing-experiments.v1",
+  "date": "2026-11-09",
+  "application": {
+    "name": "WING-Edit",
+    "version": "3.3.4",
+    "runtimePlatform": "macOS",
+    "runtimeBinarySha256": "2aa6aafcf96ad09e6bd946eb164765f4bb8a7437ec984fbd6257c97dc43db530",
+    "staticPlatform": "Linux ELF x86-64",
+    "staticBinarySha256": "2076aaf75a100eae9fb3d517116b624f6f3a5b8f556ed8b61595062eab34ce4a"
+  },
+  "method": {
+    "runtime": "Use the disconnected offline editor, save a synthetic baseline, change one routing selector at a time, SAVE to a new file, inspect the saved JSON and compare adjacent artifacts. No console connection was used.",
+    "publication": "Minimal field observations and hashes only. Complete native snapshots, installers and private sessions are not distributed. Tests reconstruct small analysis documents; these are not native editor load templates.",
+    "static": "Symbol-sized source-group/count tables and focused native disassembly corroborate the codecs. Shell ELF/objdump inspection, not new REA Evidence; no static engine was configured.",
+    "successfulNativeArtifacts": 20,
+    "reproduce": [
+      "SAVE an offline synthetic baseline as a new snapshot.",
+      "Select a destination in Routing; choose the source slot and confirm the destination label changes.",
+      "For USR 1–24 edit its logical source, tap and side; for USR 25–56 choose a raw input.",
+      "SAVE each change separately, hash the resulting file, and compare the listed JSON Pointer.",
+      "Do not treat browsing a source group or a filename as proof that a routing change committed."
+    ]
+  },
+  "cases": [
+    {
+      "id": "00",
+      "nativeSave": "00-baseline.snap",
+      "sha256": "ec77f6383e402c91bc3daa7580a4c2f739ec030b44f2b2476f942c39b23b848a",
+      "type": "snapshot.11",
+      "method": "offline_native_save_baseline",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "BUS",
+            "in": 1
+          },
+          "uiSelection": "BUS 1L",
+          "expectedGraph": {
+            "source": "bus:1",
+            "side": "L"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/7",
+          "value": {
+            "grp": "MAIN",
+            "in": 1
+          },
+          "uiSelection": "MAIN 1L",
+          "expectedGraph": {
+            "source": "main:1",
+            "side": "L"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/8",
+          "value": {
+            "grp": "MAIN",
+            "in": 2
+          },
+          "uiSelection": "MAIN 1R",
+          "expectedGraph": {
+            "source": "main:1",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "01",
+      "nativeSave": "01-local1-bus1R.snap",
+      "sha256": "23b4cfb7ce71c204117379d4301e7b1d513a72a9326e22b692417f631767b1a7",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "BUS",
+            "in": 2
+          },
+          "uiSelection": "BUS 1R",
+          "expectedGraph": {
+            "source": "bus:1",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "nativeSave": "02-local1-bus2L.snap",
+      "sha256": "f8c09ae209cc518daf50aa02bdb2335e5f5113059f86f674a1a4cc2a7fd9cec1",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "BUS",
+            "in": 3
+          },
+          "uiSelection": "BUS 2L",
+          "expectedGraph": {
+            "source": "bus:2",
+            "side": "L"
+          }
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "nativeSave": "03-local1-bus16R.snap",
+      "sha256": "150cb1569cd73af7bb9b8b05ee62bf33cbb9c584304886ba550eb16799198abe",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "BUS",
+            "in": 32
+          },
+          "uiSelection": "BUS 16R",
+          "expectedGraph": {
+            "source": "bus:16",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "nativeSave": "04-local1-main2R.snap",
+      "sha256": "4648da0dbe4828e90cbd8f0953b384a371bd7c15fef8ceb1fc25a3a3347d7d97",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "MAIN",
+            "in": 4
+          },
+          "uiSelection": "MAIN 2R",
+          "expectedGraph": {
+            "source": "main:2",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "nativeSave": "05-local1-main4R.snap",
+      "sha256": "990f35e213721e20b0df18bde1fcfe495679c0c15173bd95391b632ba013590a",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "MAIN",
+            "in": 8
+          },
+          "uiSelection": "MAIN 4R",
+          "expectedGraph": {
+            "source": "main:4",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "06",
+      "nativeSave": "06-local1-mtx1L.snap",
+      "sha256": "b123db774df58ead43e2cb532ae4744bebc5e5a824b62559a0edf0a7a1de0e07",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "MTX",
+            "in": 1
+          },
+          "uiSelection": "MTX 1L",
+          "expectedGraph": {
+            "source": "mtx:1",
+            "side": "L"
+          }
+        }
+      ]
+    },
+    {
+      "id": "07",
+      "nativeSave": "07-local1-mtx8R.snap",
+      "sha256": "b66af65bfc7c9f44eda50cc2ea0579b464e00d42413652b23fda6945a50cae06",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "MTX",
+            "in": 16
+          },
+          "uiSelection": "MTX 8R",
+          "expectedGraph": {
+            "source": "mtx:8",
+            "side": "R"
+          }
+        }
+      ]
+    },
+    {
+      "id": "08",
+      "nativeSave": "08-local1-lcl7-passthrough.snap",
+      "sha256": "d3a61536090fa14b9e6546d9d0522a7383edec30138c45dc90bf15a25bb4fa87",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "LCL",
+            "in": 7
+          },
+          "uiSelection": "LOCAL IN 7",
+          "expectedGraph": {
+            "source": "input:LCL:7",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "09",
+      "nativeSave": "09-local1-usr1.snap",
+      "sha256": "2aa6cf3a55749ae77a60055c097b0635b766b84d19de583b003b45c599bb028b",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        },
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "OFF",
+            "in": 1,
+            "tap": "PRE",
+            "lr": "L+R"
+          },
+          "uiSelection": "OFF",
+          "expectedGraph": {
+            "status": "off"
+          }
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "nativeSave": "10-usr1-ch2-tap-sum.snap",
+      "sha256": "3542f02e5c18be884c3ace044a30f1631bca0516e17234245bd7943c34f1e33c",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "CH",
+            "in": 2,
+            "tap": "PRE",
+            "lr": "L+R"
+          },
+          "uiSelection": "CH 2, TAP, L+R",
+          "expectedGraph": {
+            "source": "ch:2",
+            "side": "L+R",
+            "tap": "PRE"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/ptap",
+          "value": "5",
+          "meaning": "Stored strip TAP token, extracted from the same native save; no intermediate processing order inferred."
+        }
+      ]
+    },
+    {
+      "id": "11",
+      "nativeSave": "11-usr1-ch2-tap-R.snap",
+      "sha256": "67ec96597410cae4c589497afb4344e687e8734a5e31eafe1248ad04610b351c",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "CH",
+            "in": 2,
+            "tap": "PRE",
+            "lr": "R"
+          },
+          "uiSelection": "CH 2, TAP, R",
+          "expectedGraph": {
+            "source": "ch:2",
+            "side": "R",
+            "tap": "PRE"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        },
+        {
+          "pointer": "/ae_data/ch/2/ptap",
+          "value": "5",
+          "meaning": "Stored strip TAP token, extracted from the same native save; no intermediate processing order inferred."
+        }
+      ]
+    },
+    {
+      "id": "12",
+      "nativeSave": "12-usr1-ch2-post-R.snap",
+      "sha256": "a39bdc1d17f4c2576f415ecbe2167086a41737d54dc3fcb3115238b63a1d7a68",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "CH",
+            "in": 2,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "CH 2, POST, R",
+          "expectedGraph": {
+            "source": "ch:2",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "13",
+      "nativeSave": "13-usr1-ch40-post-R.snap",
+      "sha256": "e5ab4faae3720dcfd8fe314860783a905fbe12674d60f25d3bd644fce42ebed4",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "CH",
+            "in": 40,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "CH 40, POST, R",
+          "expectedGraph": {
+            "source": "ch:40",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "nativeSave": "14-usr1-aux8-post-R.snap",
+      "sha256": "8432946410e1f7591a60b5fb87542ed07d81705c6f64912e420d030b9a5a380c",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "AUX",
+            "in": 8,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "AUX 8, POST, R",
+          "expectedGraph": {
+            "source": "aux:8",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "nativeSave": "15-usr1-bus16-post-R.snap",
+      "sha256": "200fb5c67949baa282dbb4f02a64db16c13350844005332940f1a462e1d760bc",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "BUS",
+            "in": 16,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "BUS 16, POST, R",
+          "expectedGraph": {
+            "source": "bus:16",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "nativeSave": "16-usr1-main4-post-R.snap",
+      "sha256": "5debd2c8285a1667dafbb49fdedcbcf50feeefc37d454f4c1473d2733e8b71bc",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "MAIN",
+            "in": 4,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "MAIN 4, POST, R",
+          "expectedGraph": {
+            "source": "main:4",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "nativeSave": "17-usr1-mtx8-post-R.snap",
+      "sha256": "28fd79c6a612a19a786ed1779fcf1cc1c11bc2fee906fad696642df3893dddc0",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "MTX",
+            "in": 8,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "MTX 8, POST, R",
+          "expectedGraph": {
+            "source": "mtx:8",
+            "side": "R",
+            "tap": "POST"
+          }
+        },
+        {
+          "pointer": "/ae_data/io/out/LCL/1",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "nativeSave": "18-usr25-a48-raw-patch.snap",
+      "sha256": "01e2a2902cad9286f5fe4ae4135d5316548087f9a8b568b9aba42025ecd82bac",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/in/USR/25/user",
+          "value": {
+            "grp": "A",
+            "in": 48
+          },
+          "uiSelection": "AES50 A 48 raw input",
+          "expectedGraph": {
+            "source": "input:A:48",
+            "side": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "20",
+      "nativeSave": "20-a48-usr1-mtx8.snap",
+      "sha256": "9d42729ae1f5ed5e3c78f7893030f379170ae19e4a0732939b30e1e8b7be3de0",
+      "type": "snapshot.11",
+      "method": "offline_ui_selection_then_native_save",
+      "observations": [
+        {
+          "pointer": "/ae_data/io/out/A/48",
+          "value": {
+            "grp": "USR",
+            "in": 1
+          },
+          "uiSelection": "USER SIGNAL 1 at AES50 A output 48",
+          "expectedGraph": {
+            "source": "input:USR:1",
+            "side": null
+          }
+        },
+        {
+          "pointer": "/ae_data/io/in/USR/1/user",
+          "value": {
+            "grp": "MTX",
+            "in": 8,
+            "tap": "POST",
+            "lr": "R"
+          },
+          "uiSelection": "MTX 8, POST, R",
+          "expectedGraph": {
+            "source": "mtx:8",
+            "side": "R",
+            "tap": "POST"
+          }
+        }
+      ]
+    }
+  ],
+  "unsuccessfulExperiments": [
+    {
+      "id": "19",
+      "requested": "USB output 48 from USR 25",
+      "nativeSave": "19-usb48-usr25-a48.snap",
+      "sha256": "01e2a2902cad9286f5fe4ae4135d5316548087f9a8b568b9aba42025ecd82bac",
+      "observed": {
+        "pointer": "/ae_data/io/out/USB/48",
+        "value": {
+          "grp": "OFF",
+          "in": 1
+        }
+      },
+      "result": "Desired patch did not commit; file is byte-identical to case 18. Excluded from successful USB routing evidence."
+    },
+    {
+      "id": "channel-source-menu",
+      "requested": "Select BUS as channel input source group",
+      "result": "Native editor terminated with EXC_BAD_ACCESS in SourceGroupItem::buttonClicked. Not a successful channel input codec experiment."
+    },
+    {
+      "id": "21",
+      "requested": "Load a prepared ch1 BUS/in=4 proposal, inspect, then native SAVE",
+      "method": "prepared_json_load_attempt_not_native_save",
+      "result": "Channel header showed BUS 2 after LOAD, but subsequent pointer actions did not navigate or open SAVE. No native roundtrip artifact was obtained; exact side remains static corroboration only. Editor was closed afterward."
+    }
+  ],
+  "staticCorroboration": {
+    "logicalSelectorRanges": {
+      "BUS": 32,
+      "MAIN": 8,
+      "MTX": 16
+    },
+    "logicalSelectorEncoding": "ceil(encodedIndex/2); odd L, even R",
+    "userDirectSlots": [
+      1,
+      24
+    ],
+    "userRawSlots": [
+      25,
+      56
+    ],
+    "userDirectLogicalRanges": {
+      "CH": 40,
+      "AUX": 8,
+      "BUS": 16,
+      "MAIN": 4,
+      "MTX": 8
+    },
+    "rawAddressSpaceLimits": {
+      "LCL": 24,
+      "AUX": 8,
+      "A": 48,
+      "B": 48,
+      "C": 48,
+      "SC": 32,
+      "USB": 48,
+      "CRD": 64,
+      "MOD": 64,
+      "PLAY": 4,
+      "AES": 2,
+      "OSC": 2
+    },
+    "userRawExcludes": [
+      "USR",
+      "OSC",
+      "BUS",
+      "MAIN",
+      "MTX",
+      "SEND",
+      "MON"
+    ],
+    "sourceGroupTable": {
+      "symbol": "grpnamestrings",
+      "address": "0x631d5c0",
+      "symbolBytes": 304
+    },
+    "sourceCountTable": {
+      "symbol": "grpcmax",
+      "address": "0xc8d9e0",
+      "symbolBytes": 76
+    },
+    "userDirectCountTable": {
+      "symbol": "usersignal_grpspccount",
+      "address": "0xc8d950",
+      "symbolBytes": 24
+    },
+    "matrixDirectTokens": [
+      "OFF",
+      "AES",
+      "MON.PH",
+      "MON.SPK",
+      "MON.BUS"
+    ]
+  },
+  "limitations": [
+    "Only snapshot.11 uses the verified source codec.",
+    "Runtime cases are samples, not an exhaustive UI test of every bank, slot, model or group. Same-layout ranges use static corroboration.",
+    "General SEND and MON source selectors remain unresolved; named matrix direct inputs are not expanded.",
+    "Channel BUS/MAIN/MTX input-side mapping has static corroboration, without a completed UI/SAVE roundtrip.",
+    "PRE for CH/AUX is displayed as TAP; do not globally equate it with pre-fader.",
+    "Graph reachability is structural; it does not establish audio, cabling, fader/tap behavior, DSP propagation or physical console operation."
+  ]
+}

@@ -23,7 +23,13 @@ try {
   await check('Node.js runtime', async () => { ensure(Number(process.versions.node.split('.')[0]) >= 20, 'Node.js 20 or later is required.'); return process.versions.node; });
   temporary = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'wing-doctor-')));
   const first = path.join(temporary, 'first.snap'), second = path.join(temporary, 'second.snap');
-  const fixture = { type: 'snapshot.11', creator_name: 'Synthetic readiness check', ae_data: { ch: { '1': { name: 'HOST', clink: false, mute: false, fdr: 0, eq: { on: true, mdl: 'STD', '1f': 250, '1g': -2, '1q': 1 } } } } };
+  const fixture = { type: 'snapshot.11', creator_name: 'Synthetic readiness check', ae_data: {
+    ch: { '1': { name: 'HOST', clink: false, mute: false, fdr: 0,
+      in: { conn: { grp: 'LCL', in: 1 }, set: { srcauto: false, altsrc: false } },
+      main: { '1': { on: true, lvl: 0 } }, eq: { on: true, mdl: 'STD', '1f': 250, '1g': -2, '1q': 1 } } },
+    main: { '1': { name: 'Main', mute: false, fdr: 0 } },
+    io: { in: { LCL: { '1': { name: 'Synthetic microphone', mode: 'M' } } }, out: { USB: { '1': { grp: 'MAIN', in: 1 } } } },
+  } };
   await fs.writeFile(first, JSON.stringify(fixture));
   fixture.ae_data.ch['1'].eq['1g'] = -3;
   await fs.writeFile(second, JSON.stringify(fixture));
@@ -38,6 +44,12 @@ try {
     const compared = await analyzer.compare({ before: first, after: second });
     ensure(compared.total === 1 && compared.items[0].pointer === '/ae_data/ch/1/eq/1g', 'Expected EQ change was not reported.');
   });
+  await check('Forward and reverse output routing', async () => {
+    const forward = await analyzer.routes({ path: first, kind: 'ch', number: 1 });
+    const reverse = await analyzer.outputRoutes({ path: first, bank: 'USB', number: 1 });
+    const patch = graph => graph.edges.find(edge => edge.kind === 'output_patch' && edge.from === 'main:1' && edge.to === 'output:USB:1');
+    ensure(patch(forward)?.side === 'L' && patch(reverse)?.side === 'L' && reverse.direction === 'upstream', 'Forward/reverse output patch did not agree.');
+  });
   await check('Batch partial failure and inventory duplicates', async () => {
     const batch = await analyzer.batch({ paths: [first, path.join(temporary, 'missing.snap')] });
     const index = await analyzer.index({ paths: [first, first] });
@@ -49,13 +61,15 @@ try {
   });
   await check('Official MCP SDK and actual stdio server', async () => {
     const [{ Client }, { StdioClientTransport }] = await Promise.all([import('@modelcontextprotocol/sdk/client/index.js'), import('@modelcontextprotocol/sdk/client/stdio.js')]);
-    client = new Client({ name: 'wing-readiness-check', version: '0.2.0' });
+    client = new Client({ name: 'wing-readiness-check', version: '0.3.0' });
     const transport = new StdioClientTransport({ command: process.execPath, args: [fileURLToPath(new URL('./wing-session-mcp.mjs', import.meta.url)), '--root', temporary], stderr: 'pipe' });
     await timed(() => client.connect(transport));
     const list = await timed(() => client.listTools());
-    ensure(list.tools.length === 14 && list.tools.every(tool => tool.annotations?.readOnlyHint === true), 'Expected 14 read-only tools.');
+    ensure(list.tools.length === 15 && list.tools.every(tool => tool.annotations?.readOnlyHint === true), 'Expected 15 read-only tools.');
     const response = await timed(() => client.callTool({ name: 'wing_report', arguments: { path: first } }));
     ensure(!response.isError && response.structuredContent?.result?.evidence?.sha256 === hash, 'MCP report call failed.');
+    const routed = await timed(() => client.callTool({ name: 'wing_output_routes', arguments: { path: first, bank: 'USB', number: 1 } }));
+    ensure(!routed.isError && routed.structuredContent?.result?.edges?.some(edge => edge.kind === 'output_patch' && edge.side === 'L'), 'MCP output routing call failed.');
     return `${list.tools.length} read-only tools`;
   });
   await check('Source bytes and modification time preserved', async () => {
@@ -66,6 +80,6 @@ finally {
   try { await client?.close(); } catch { /* Report test failures above, then remove only temporary fixtures. */ }
   if (temporary) await fs.rm(temporary, { recursive: true, force: true });
 }
-const ok = checks.length >= 7 && checks.every(result => result.status === 'pass');
-process.stdout.write(JSON.stringify({ ok, version: '0.2.0', scope: 'Synthetic local files and MCP stdio only; no console, network discovery or real session validation.', checks, ...(!ok ? { nextStep: 'Confirm Node.js >=20 and run npm ci in this repository, then repeat this command.' } : {}) }, null, 2) + '\n');
+const ok = checks.length >= 8 && checks.every(result => result.status === 'pass');
+process.stdout.write(JSON.stringify({ ok, version: '0.3.0', scope: 'Synthetic local files and MCP stdio only; no console, network discovery or real session validation.', checks, ...(!ok ? { nextStep: 'Confirm Node.js >=20 and run npm ci in this repository, then repeat this command.' } : {}) }, null, 2) + '\n');
 process.exitCode = ok ? 0 : 1;

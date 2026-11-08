@@ -3,6 +3,8 @@
  * save_show 0x6db7c0; supplied Wing Edit 3.3.4 ELF. Names/fields are observed;
  * structural graph edges do not establish physical signal flow or audibility.
  */
+import { decodeRoutingSource, traceRoutesDocument, traceOutputRoutesDocument } from './routing.mjs';
+
 const TYPES = Object.freeze({ snapshot: 'snapshot', showfile: 'show', snippet: 'snippet', chpreset: 'channel_preset', fxpreset: 'fx_preset' });
 const GROUPS = ['ch', 'aux', 'bus', 'main', 'mtx', 'dca', 'mgrp'];
 const AUDIO_GROUPS = ['ch', 'aux', 'bus', 'main', 'mtx'];
@@ -115,12 +117,14 @@ function sourceReference(doc, channelParts, connection, groupKey, inputKey) {
   const input = fact(doc.data, [...channelParts, 'in', 'conn', inputKey]);
   const result = { sourcePointer: pointer([...channelParts, 'in', 'conn']), group, input, status: 'not_included' };
   if (!group.exists || !input.exists) return result;
-  if (group.value === 'OFF') { result.status = 'off'; return result; }
-  if (typeof group.value !== 'string' || !Number.isInteger(input.value) || input.value < 1) { result.status = 'unrecognized_reference'; return result; }
-  result.reference = { group: group.value, number: input.value };
-  const targetParts = ['ae_data', 'io', 'in', group.value, String(input.value)];
+  const decoded = decodeRoutingSource(doc, { grp: group.value, in: input.value }, result.sourcePointer);
+  if (decoded.status === 'off') return { ...result, status: 'off' };
+  if (decoded.status !== 'decoded') return { ...result, status: 'unrecognized_reference', decoding: decoded };
+  result.reference = decoded.reference;
+  result.targetPointer = decoded.targetPointer;
+  result.codec = decoded.codec;
+  const targetParts = tokens(decoded.targetPointer);
   const target = fact(doc.data, targetParts);
-  result.targetPointer = pointer(targetParts);
   if (target.exists && object(target.value)) {
     result.status = 'present';
     result.label = fact(doc.data, [...targetParts, 'name']);
@@ -260,60 +264,11 @@ function outgoing(entry) {
   return routes;
 }
 export function traceRoutes(value, options = {}) {
-  if (!object(options) || Object.keys(options).some(key => !['kind', 'number', 'maxDepth'].includes(key))) fail('INVALID_OPTION', 'Route tracing accepts only kind, number and maxDepth; prefix/paging are not supported.');
-  const { kind = 'ch', number = 1, maxDepth = 8 } = options;
-  const doc = docOf(value);
-  if (!AUDIO_GROUPS.includes(kind) || !Number.isInteger(number) || number < 1) fail('INVALID_ROUTE_START', 'Route start must identify a positive ch/aux/bus/main/mtx slot.');
-  if (!Number.isInteger(maxDepth) || maxDepth < 0 || maxDepth > 32) fail('INVALID_DEPTH', 'maxDepth must be an integer from 0 to 32.');
-  const entries = groupEntries(doc), byId = new Map(entries.map(entry => [`${entry.kind}:${entry.number}`, entry]));
-  const start = `${kind}:${number}`, nodes = [], edges = [], unresolved = [], visited = new Set(), queue = [{ id: start, depth: 0 }];
-  const nodeIds = new Set();
-  const addNode = node => { if (!nodeIds.has(node.id)) { nodes.push(node); nodeIds.add(node.id); } };
-  while (queue.length) {
-    const { id, depth } = queue.shift();
-    if (visited.has(id)) continue;
-    visited.add(id);
-    const entry = byId.get(id);
-    if (!entry) { unresolved.push({ code: 'SLOT_NOT_IN_DOCUMENT', reference: id, sourcePointer: `/ae_data/${id.replace(':', '/')}`, reason: 'Referenced slot is not present; omitted partial data is not an invalid physical route.' }); continue; }
-    addNode({ id, kind: entry.kind, number: entry.number, sourcePointer: pointer(entry.parts), mute: fact(doc.data, [...entry.parts, 'mute']), fader: fact(doc.data, [...entry.parts, 'fdr']) });
-    if (['ch', 'aux'].includes(entry.kind)) {
-      const sources = sourceSummary(doc, entry);
-      for (const label of ['primary', 'alternate']) {
-        const source = sources[label];
-        if (source.status === 'off' || source.status === 'not_included') continue;
-        const sourceId = source.reference ? `input:${source.reference.group}:${source.reference.number}` : `input:unrecognized:${pointer(entry.parts)}:${label}`;
-        addNode({ id: sourceId, kind: 'input_reference', ...source, sourcePointer: source.sourcePointer });
-        edges.push({ from: sourceId, to: id, kind: 'input_candidate', selected: sources.selected === label ? true : ['primary', 'alternate'].includes(sources.selected) ? false : null,
-          sourcePointer: source.sourcePointer, raw: clone(entry.value.in?.conn || {}), interpretation: 'Recorded primary/alternate reference; not audible-state proof.' });
-        if (source.status !== 'present') unresolved.push({ code: 'SOURCE_TARGET_NOT_IN_DOCUMENT', reference: source.reference || null, sourcePointer: source.sourcePointer, targetPointer: source.targetPointer || null, reason: 'Input metadata target is absent or reference layout is unrecognized.' });
-      }
-      if (!['primary', 'alternate'].includes(sources.selected)) unresolved.push({ code: 'EFFECTIVE_SOURCE_UNKNOWN', sourcePointer: pointer([...entry.parts, 'in', 'set']), reason: 'Automatic switching or omitted selection flags prevent a definite effective source.' });
-    }
-    for (const route of outgoing(entry)) {
-      const sourcePointer = pointer(route.parts);
-      if (!object(route.raw)) { unresolved.push({ code: 'ROUTE_LAYOUT_UNKNOWN', sourcePointer, raw: clone(route.raw) }); continue; }
-      if (route.raw.on === false) continue;
-      if (route.raw.on !== true) { unresolved.push({ code: 'ROUTE_ENABLE_UNKNOWN', sourcePointer, raw: clone(route.raw) }); continue; }
-      if (!route.destination) { unresolved.push({ code: 'ROUTE_DESTINATION_UNKNOWN', sourcePointer, rawDestination: route.key, raw: clone(route.raw) }); continue; }
-      const destination = `${route.destination.kind}:${route.destination.number}`;
-      edges.push({ from: id, to: destination, kind: route.routeKind, enabled: true, sourcePointer, raw: clone(route.raw), interpretation: 'Structural send/main reference; reachability is not audibility.' });
-      if (!byId.has(destination)) unresolved.push({ code: 'ROUTE_TARGET_NOT_IN_DOCUMENT', reference: route.destination, sourcePointer, targetPointer: `/ae_data/${route.destination.kind}/${route.destination.number}`, reason: 'Target slot is not included in this file.' });
-      else if (depth < maxDepth) queue.push({ id: destination, depth: depth + 1 });
-      else unresolved.push({ code: 'MAX_DEPTH_REACHED', reference: route.destination, sourcePointer, maxDepth });
-    }
-    if (object(entry.value.dir) && entry.value.dir.on === true) unresolved.push({ code: 'DIRECT_SOURCE_TOKEN_UNRESOLVED', sourcePointer: pointer([...entry.parts, 'dir']), raw: clone(entry.value.dir), reason: 'Direct-source token retained without an unverified index decoder.' });
-  }
-  const reachableGroups = new Set(nodes.map(node => node.kind.toUpperCase()));
-  if (object(doc.data.ae_data?.io?.out)) for (const [bank, outputs] of Object.entries(doc.data.ae_data.io.out)) {
-    if (!object(outputs)) continue;
-    for (const [slot, raw] of Object.entries(outputs)) {
-      if (!object(raw) || raw.grp === 'OFF' || !reachableGroups.has(raw.grp)) continue;
-      unresolved.push({ code: 'OUTPUT_SOURCE_INDEX_UNVERIFIED', sourcePointer: pointer(['ae_data', 'io', 'out', bank, slot]), output: { bank, number: slot }, raw: clone(raw), reason: 'Output source indices can encode interleaved stereo sides; no direct logical bus/main/matrix index mapping is claimed.' });
-    }
-  }
-  return { start, sourcePointer: `/ae_data/${kind}/${number}`, nodes, edges, unresolved, maxDepth,
-    interpretation: 'structural_reachability_only', audibleOutput: 'not_determined',
-    limitations: [...doc.limitations, 'Only explicit enabled main/send fields are traversed. Tap order, inserts, DCA/mute groups, fader law and runtime selection are not simulated.', 'Output source encodings and physical patch endpoints remain unresolved rather than guessed.'] };
+  return traceRoutesDocument(docOf(value), options);
+}
+
+export function traceOutputRoutes(value, options = {}) {
+  return traceOutputRoutesDocument(docOf(value), options);
 }
 
 function sceneEntries(doc) {
@@ -341,7 +296,7 @@ export function analyzeFindings(value, { offset = 0, limit = 100, severity = 'al
   for (const entry of entries.filter(entry => AUDIO_GROUPS.includes(entry.kind))) {
     const source = sourceSummary(doc, entry);
     if (['ch', 'aux'].includes(entry.kind) && source.effective?.reference && source.effective.status !== 'off') {
-      const key = `${source.effective.reference.group}:${source.effective.reference.number}`;
+      const key = `${source.effective.reference.group}:${source.effective.reference.number}${source.effective.reference.side ? ':' + source.effective.reference.side : ''}`;
       if (!inputs.has(key)) inputs.set(key, []);
       inputs.get(key).push({ kind: entry.kind, number: entry.number, sourcePointer: source.effective.sourcePointer, mute: fact(doc.data, [...entry.parts, 'mute']) });
     }

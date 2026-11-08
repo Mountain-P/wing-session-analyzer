@@ -24,12 +24,13 @@ wing-session index <path> [more-paths...] [options]
 | `search` | `--query`（必填）、`--prefix`、分頁 | 找字串或參數路徑線索 |
 | `get` | `--pointer`（必填） | 取回確切 JSON Pointer 的原始值 |
 | `routes` | `--kind`、`--number`、`--max-depth` | 來源、送出及目的關係的有界圖；不接受分頁或 prefix |
+| `output-routes` | `--bank`、`--number`（兩者必填）、`--max-depth` | 指定輸出 patch 的上游路由；不接受分頁或 prefix |
 | `diff` | `--prefix`、`--ignore-metadata`、分頁 | 兩份 JSON 設定變更 |
 | `findings` | `--severity info\|warning\|error`、分頁 | 可能設定問題及需核對項目 |
 | `scenes` | 分頁 | Show 的 scene 召回清單 |
 | `assets` | `--asset-root`、分頁 | Show 的本地引用檔案核對 |
 
-`--kind` 可用 `ch`、`aux`、`bus`、`main`、`mtx`、`dca`；`report` 也接受 `all`，routes 起點不接受 DCA。不是所有格式都有全部種類。一般清單與比較的 `--limit` 為 1–200、預設 50；`report` 預設 10；batch 外層預設 3、範圍 1–20，嵌入各份報告先取各區塊前 5 筆。`--offset` 為非負整數；routes 改用 `--max-depth` 0–32，預設 8。`report` 各區塊及 batch 內報告有自己的分頁資訊，不能將外層成功當成已讀完所有明細。256 KiB 回應上限可能需要更小頁面。`--root` 可以重複，`--json` 可明確要求 JSON（也是預設格式）；`--format` 只適用於 `report`、`compare`、`batch`。完整目前語法用 `--help` 確認。
+`--kind` 可用 `ch`、`aux`、`bus`、`main`、`mtx`、`dca`；`report` 也接受 `all`，routes 起點不接受 DCA。不是所有格式都有全部種類。一般清單與比較的 `--limit` 為 1–200、預設 50；`report` 預設 10；batch 外層預設 3、範圍 1–20，嵌入各份報告先取各區塊前 5 筆。`--offset` 為非負整數；routes／output-routes 改用 `--max-depth` 0–32，預設 8。`--bank` 使用文件中的輸出群組 key，例如 `LCL`、`USB` 或 `A`，不是顯示名稱「Local Out」／「AES50 A」。`report` 各區塊及 batch 內報告有自己的分頁資訊，不能將外層成功當成已讀完所有明細。256 KiB 回應上限可能需要更小頁面。`--root` 可以重複，`--json` 可明確要求 JSON（也是預設格式）；`--format` 只適用於 `report`、`compare`、`batch`。完整目前語法用 `--help` 確認。
 
 ## 依問題縮小範圍
 
@@ -38,6 +39,8 @@ wing-session index <path> [more-paths...] [options]
 **「幫我分析這份場次」** 先 report，依用途整理來源／通道、保存的處理設定、路由摘要、需核對項目及限制。摘要來源 hash、coverage 和分頁情況；需要的細節再查 channel／routes／get。沒有場地、麥克風或預期配置時，先報可觀察事實，不補出用途或最佳 EQ。
 
 **「主持人的麥接哪裡？」** 用 channels／search 找到名稱和編號，再查 channel 及該編號的 routes。引用來源節點與 routing Pointer，回答「檔案指定的來源」，再指出是否缺少實體端口映射。不能只因標籤寫「Mic 1」便認定是 Local input 1。
+
+**「這個 USB／Local 輸出收到哪些來源？」** 用 `output-routes` 指定實際 bank／number；閱讀 `direction`、`outputs`、上游邊及未解析項目。圖中的邊仍是來源 → 目的地。需要核對正向結果時，從其中的 strip 再查 routes。原始輸入直接送往輸出的配置，不經過使用該輸入的處理通道；候選但未確定選用的來源也不能當成已生效依賴。左右側、User Signal 與深度定義見 [routing-guide.md](routing-guide.md)。
 
 **「為何某通道沒有聲音？」** 核對已保存的 source、mute、fader、sends、目標 bus／main 與相關 Pointer。把 findings 描述為排查線索；檔案不能觀察實際前級訊號、外接接線、控台目前狀態或喇叭。
 
@@ -66,6 +69,7 @@ wing-session index <path> [more-paths...] [options]
 ```text
 wing_inspect       wing_channels       wing_channel
 wing_search        wing_get_parameter  wing_routes
+wing_output_routes
 wing_diff          wing_findings       wing_scenes
 wing_check_assets
 wing_report        wing_compare         wing_batch

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import {
   parseWingDocument, inspectDocument, listChannels, getChannel, searchParameters,
-  getParameter, traceRoutes, diffDocuments, analyzeFindings, listScenes,
+  getParameter, traceRoutes, traceOutputRoutes, diffDocuments, analyzeFindings, listScenes,
 } from './analysis.mjs';
 import { buildSessionReport, compareSessions } from './reports.mjs';
 
@@ -127,7 +127,7 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
           sha256: createHash('sha256').update(buffer).digest('hex'),
           bytes,
           sourceType: 'local-file',
-          parserVersion: '0.2.0',
+          parserVersion: '0.3.0',
         },
       };
     } catch (error) {
@@ -272,6 +272,7 @@ export function createAnalyzerService({ roots, maxFileBytes = DEFAULT_MAX_FILE_B
     search: args => one(args, searchParameters, true),
     parameter: args => one(args, (doc, options) => getParameter(doc, options.pointer)),
     routes: args => one(args, traceRoutes),
+    outputRoutes: args => one(args, traceOutputRoutes),
     findings: async args => {
       const { doc, evidence } = await readDocument(args.path);
       const options = page(args);

@@ -45,8 +45,10 @@ test('session report keeps real stored settings, source selection, bypass state 
   assert.equal(host.routes.audibleOutput, 'not_determined');
   assert.equal(host.routes.direct.items[0].destination, 'main:1');
   assert.equal(host.routes.direct.items[0].level.value, 0);
-  assert.equal(host.routes.unresolved.byCode.OUTPUT_SOURCE_INDEX_UNVERIFIED, 1);
-  assert.equal(Object.hasOwn(host.routes.unresolved.items[0], 'raw'), false);
+  assert.equal(host.routes.outputs.total, 1);
+  assert.equal(host.routes.outputs.items[0].side, 'L');
+  assert.deepEqual(host.routes.outputs.items[0].raw, { grp: 'MAIN', in: 1 });
+  assert.equal(host.routes.outputs.items[0].sourcePointer, '/ae_data/io/out/LCL/7');
   assert.equal(JSON.stringify(original), frozen);
 });
 

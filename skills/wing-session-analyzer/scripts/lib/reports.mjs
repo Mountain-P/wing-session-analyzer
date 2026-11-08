@@ -70,20 +70,42 @@ function processing(doc, channelPointer) {
   return [['flt', 'Filters'], ['eq', 'EQ'], ['gate', 'Gate slot'], ['dyn', 'Dynamics slot'], ['preins', 'Pre insert'], ['postins', 'Post insert']]
     .map(([key, label]) => processingSection(doc, channelPointer, key, label));
 }
-function routeSummary(doc, channel) {
+function routeSummary(doc, channel, { maxSamples = 3 } = {}) {
   if (!AUDIO_KINDS.has(channel.kind)) return { supported: false, reason: 'This control group is not an audio routing strip.' };
   const graph = traceRoutes(doc, { kind: channel.kind, number: channel.number, maxDepth: 8 });
   const byCode = {};
   for (const issue of graph.unresolved) byCode[issue.code] = (byCode[issue.code] || 0) + 1;
-  const direct = graph.edges.filter(edge => edge.from === graph.start).map(edge => ({
-    destination: edge.to, sourcePointer: edge.sourcePointer,
+  const direct = graph.edges.filter(edge => edge.from === graph.start && ['main', 'send'].includes(edge.kind) && edge.enabled === true).map(edge => ({
+    kind: edge.kind, destination: edge.to, sourcePointer: edge.sourcePointer,
     level: fact(doc, join(edge.sourcePointer, 'lvl')), pre: fact(doc, join(edge.sourcePointer, 'pre')), mode: fact(doc, join(edge.sourcePointer, 'mode')),
   }));
+  const outputs = (graph.outputs || graph.nodes.filter(node => node.kind === 'output_patch')).filter(node => node.contextOnly !== true)
+    .sort((left, right) => left.bank.localeCompare(right.bank, 'en', { numeric: true }) || left.number - right.number);
+  const outputSamples = outputs.slice(0, maxSamples).map(node => {
+    const patch = graph.edges.find(edge => edge.kind === 'output_patch' && edge.to === node.id);
+    const assignment = patch && graph.edges.find(edge => edge.kind === 'user_signal' && edge.to === patch.from);
+    const source = patch && graph.nodes.find(candidate => candidate.id === patch.from);
+    return {
+      id: node.id, bank: node.bank, number: node.number, sourcePointer: node.sourcePointer,
+      status: node.source?.status ?? 'not_determined', source: patch?.from ?? null, sourceExists: source?.exists ?? null,
+      reference: patch?.reference ?? node.source?.reference ?? null, side: patch?.side ?? null,
+      ...(patch?.raw !== undefined || node.source?.raw !== undefined ? { raw: COPY(patch?.raw ?? node.source.raw) } : {}),
+      ...(assignment ? { userSignal: {
+        source: assignment.from, sourcePointer: assignment.sourcePointer, raw: COPY(assignment.raw ?? source?.assignment?.value ?? null),
+        ...(assignment.side !== undefined ? { side: assignment.side } : {}),
+        ...(assignment.tap !== undefined ? { tap: assignment.tap, tapInterpretation: assignment.tapInterpretation } : {}),
+        ...(assignment.channelTap ? { channelTap: COPY(assignment.channelTap) } : {}),
+      } } : {}),
+    };
+  });
   return {
     supported: true, interpretation: graph.interpretation, audibleOutput: graph.audibleOutput, maxDepth: graph.maxDepth,
-    reachableNodes: graph.nodes.length, observedEdges: graph.edges.length,
+    reachableNodes: graph.nodes.filter(node => node.contextOnly !== true).length,
+    contextNodes: graph.nodes.filter(node => node.contextOnly === true).length, observedEdges: graph.edges.length,
+    coverage: COPY(graph.coverage),
     direct: { items: direct.slice(0, 8), total: direct.length, hasMore: direct.length > 8 },
-    unresolved: { total: graph.unresolved.length, byCode, items: graph.unresolved.slice(0, 3).map(({ raw, ...issue }) => issue), hasMore: graph.unresolved.length > 3 },
+    outputs: { items: outputSamples, total: outputs.length, hasMore: outputs.length > maxSamples, maxSamples, countsScope: 'traced-downstream-patches' },
+    unresolved: { total: graph.unresolved.length, byCode, items: graph.unresolved.slice(0, maxSamples).map(({ raw, ...issue }) => issue), hasMore: graph.unresolved.length > maxSamples },
     detailAccess: { operation: 'traceRoutes', kind: channel.kind, number: channel.number },
   };
 }
@@ -103,6 +125,8 @@ export function buildSessionReport(value, { kind = 'all', offset = 0, limit = 10
   const doc = documentOf(value), overview = inspectDocument(doc);
   const channels = listChannels(doc, { kind, offset, limit });
   channels.items = channels.items.map(channel => ({ ...compactChannel(channel), processing: processing(doc, channel.sourcePointer), routes: routeSummary(doc, channel) }));
+  const routingCoverage = channels.items.find(channel => channel.routes.supported)?.routes.coverage
+    ?? traceRoutes(doc, { kind: 'ch', number: 1, maxDepth: 0 }).coverage;
   const allFindings = collect(options => analyzeFindings(doc, options));
   const byCode = {}, bySeverity = {};
   for (const finding of allFindings) {
@@ -124,11 +148,11 @@ export function buildSessionReport(value, { kind = 'all', offset = 0, limit = 10
     sections: {
       overview: { scope: 'entire-document' }, channels: { scope: 'selected-kind-page', kind },
       findings: { scope: 'entire-document-summary-and-paged-details' },
-      routing: { scope: 'displayed-channels-depth-8', physicalOutputMapping: 'unverified', audibility: 'not_determined' },
+      routing: { scope: 'displayed-channels-depth-8', ...COPY(routingCoverage), audibility: 'not_determined' },
       dsp: { scope: 'stored-model-dependent-parameters', frequencyResponse: 'not_simulated' },
       assets: { scope: 'not_checked', operation: 'assets' },
     },
-    limitations: [...doc.limitations, 'Report detail lists share offset/limit. Summary counts are complete, while displayed channels, findings and scenes are paged.', 'DSP parameters describe stored settings, including bypassed slots; no room response, automatic EQ or exact plugin response is inferred.'],
+    limitations: [...doc.limitations, 'Report detail lists share offset/limit. Summary counts are complete, while displayed channels, findings and scenes are paged.', 'Output summaries count traced downstream patches within the routing depth. Samples are bounded; use route queries for complete evidence. Side labels describe stored patch/USR selections, not stereo propagation or audibility.', 'DSP parameters describe stored settings, including bypassed slots; no room response, automatic EQ or exact plugin response is inferred.'],
   };
 }
 
@@ -226,12 +250,14 @@ function evidenceLines(evidence) {
 }
 function renderSingle(report) {
   const lines = ['# WING session report', '', ...evidenceLines(report.evidence),
-    `Type: ${markdown(report.overview.type)}; coverage: ${markdown(report.overview.coverage)}.`, '',
+    `Type: ${markdown(report.overview.type)}; coverage: ${markdown(report.overview.coverage)}.`,
+    ...(report.sections?.routing ? [`Routing codec: ${markdown(report.sections.routing.codec || 'not specified')}; physical output mapping: ${markdown(report.sections.routing.physicalOutputMapping)}. Output patch selections do not prove physical cabling or audible output.`] : []), '',
+    ...(report.sections?.routing?.outputPatches ? [`Recorded output patches across the entire document: ${report.sections.routing.outputPatches.total}; source status counts ${display(report.sections.routing.outputPatches.byStatus)}.`, ''] : []),
     '## Channel inventory', '', `${pageText(report.channels)}. Counts describe recorded slots, not used microphones.`, '',
     '| Strip | Stored / effective label | Selected input | Mute | Fader |', '| --- | --- | --- | --- | --- |'];
   for (const channel of report.channels.items) {
     const source = channel.source.effective?.reference;
-    lines.push(`| ${markdown(`${channel.kind.toUpperCase()} ${channel.number}`)} | ${factText(channel.storedName)} / ${factText(channel.effectiveLabel)} | ${source ? markdown(`${source.group} ${source.number}`) : markdown(channel.source.selected)} | ${factText(channel.mute)} | ${factText(channel.fader)} |`);
+    lines.push(`| ${markdown(`${channel.kind.toUpperCase()} ${channel.number}`)} | ${factText(channel.storedName)} / ${factText(channel.effectiveLabel)} | ${source ? markdown(`${source.group} ${source.number}${source.side ? ` ${source.side}` : ''}`) : markdown(channel.source.selected)} | ${factText(channel.mute)} | ${factText(channel.fader)} |`);
   }
   for (const channel of report.channels.items) {
     lines.push('', `### ${markdown(`${channel.kind.toUpperCase()} ${channel.number}: ${channel.displayLabel}`)}`, '', `Evidence: ${markdown(channel.sourcePointer)}`, '');
@@ -244,6 +270,21 @@ function renderSingle(report) {
       lines.push(`- Structural routing within depth ${channel.routes.maxDepth}: ${channel.routes.observedEdges} observed edges; ${channel.routes.unresolved.total} unresolved observations. Audible output is not determined.`);
       for (const route of channel.routes.direct.items) lines.push(`  - Enabled to ${markdown(route.destination)}; level ${factText(route.level)}; pre ${factText(route.pre)}; mode ${factText(route.mode)}; ${markdown(route.sourcePointer)}`);
       if (channel.routes.direct.hasMore) lines.push(`  - ${channel.routes.direct.items.length} of ${channel.routes.direct.total} direct sends shown; use the routing query for details.`);
+      if (channel.routes.outputs) {
+        const outputs = channel.routes.outputs;
+        lines.push(`- Traced output patches: ${outputs.items.length} shown; total ${outputs.total}; hasMore ${outputs.hasMore}. Mapping coverage: ${markdown(channel.routes.coverage?.physicalOutputMapping || 'not specified')}.`);
+        for (const output of outputs.items) {
+          const reference = output.reference;
+          const label = reference ? `${reference.group} ${reference.number}${reference.side ? ` ${reference.side}` : ''}` : output.source || output.status;
+          lines.push(`  - ${markdown(`${output.bank} ${output.number}`)} ← ${markdown(label)}; raw selector ${display(output.raw)}; ${markdown(output.sourcePointer)}.`);
+          if (output.userSignal) {
+            const signal = output.userSignal;
+            lines.push(`    - User Signal assignment from ${markdown(signal.source)}; stored selector ${display(signal.raw)}; ${markdown(signal.sourcePointer)}${signal.channelTap ? `; channel tap ${factText(signal.channelTap)} (${markdown(signal.channelTap.sourcePointer)})` : ''}.`);
+          }
+          if (output.sourceExists === false) lines.push('    - Referenced source state is not included in this document.');
+        }
+        if (outputs.hasMore) lines.push('  - More traced patches exist; query routes for complete output details.');
+      }
     }
   }
   lines.push('', '## Findings', '', `${pageText(report.findings)}. Complete-document counts: ${display(report.findings.summary.byCode)}.`, '');

@@ -36,6 +36,7 @@ The server uses the official MCP SDK and speaks stdio; connect it through an MCP
 - 標準單份／批次場次報告，呈現已知處理參數、路由摘要、需核對項目與各區塊的覆蓋情況。
 - 兩份文件的原始差異或按通道／類別整理的比較；保留未知欄位與 missing／null 的差異。
 - 多份檔案的來源索引、SHA-256 重複內容分組，以及明確指定輸出位置的本地報告封裝。
+- 正向追到檔案保存的輸出 patch，或從指定輸出反查來源；已驗證的 `snapshot.11` 編碼會顯示 BUS／MAIN／MTX 左右側及 User Signal 路徑。
 
 格式識別依據 JSON 內的 `type` 及結構，副檔名僅提供背景。`snapshot.11`、`showfile.1` 是主要已建立的格式；其他版本與 snippet／preset 的完整召回語意有支援限制。詳見 [格式說明](skills/wing-session-analyzer/references/formats.md)。
 
@@ -111,6 +112,7 @@ node bin/wing-session.mjs channel /path/session.snap --kind ch --number 1
 node bin/wing-session.mjs search /path/session.snap --query '主持' --limit 20
 node bin/wing-session.mjs get /path/session.snap --pointer /ae_data/ch/1
 node bin/wing-session.mjs routes /path/session.snap --kind ch --number 1 --max-depth 8
+node bin/wing-session.mjs output-routes /path/session.snap --bank LCL --number 1 --max-depth 8
 node bin/wing-session.mjs findings /path/session.snap
 node bin/wing-session.mjs diff /path/before.snap /path/after.snap
 node bin/wing-session.mjs compare /path/before.snap /path/after.snap --format markdown
@@ -121,8 +123,9 @@ node bin/wing-session.mjs assets /path/session.show --asset-root /path/show-asse
 | 選項 | 用途 |
 | --- | --- |
 | `--kind ch\|aux\|bus\|main\|mtx\|dca` | 選擇通道族 |
-| `--number N` | 選擇文件中的通道編號；`channel` 必填 |
-| `--max-depth N` | 僅 routes：追蹤深度 0–32，預設 8；routes 不接受分頁／prefix，起點不含 DCA |
+| `--number N` | 文件中的通道或輸出槽位編號；`channel`／`output-routes` 必填 |
+| `--bank BANK` | `output-routes` 必填，使用文件內的輸出群組 key，例如 `LCL`、`USB`、`A` |
+| `--max-depth N` | routes／output-routes：邏輯 strip 跳數 0–32，預設 8；兩者不接受分頁／prefix，routes 起點不含 DCA |
 | `--query TEXT` | 搜尋文字；`search` 必填 |
 | `--pointer /path` | RFC 6901 JSON Pointer；`get` 必填 |
 | `--prefix /path` | 縮小 search／diff／compare 的範圍 |
@@ -142,6 +145,14 @@ node bin/wing-session.mjs diff /path/before.snap /path/after.snap --prefix /ae_d
 ```
 
 輸出附來源 SHA-256 與參數位置。`missing`、顯式 `null`、`0` 和 `false` 保留差異。大量結果應繼續分頁；遇到輸出上限時縮小 pointer、prefix 或 page，不能把被拒絕的查詢當成空結果。
+
+## 輸出路由追蹤
+
+`routes` 從 ch／aux／bus／main／mtx 往下追蹤已保存的明確路由；`output-routes` 從 `/ae_data/io/out/<bank>/<number>` 反查上游。反查結果標示 `direction: upstream`，圖中的邊仍維持來源 → 目的地，方便與正向結果核對。`coverage`、`unresolved` 與深度界線一起構成這次查詢的覆蓋範圍。
+
+Wing Edit 3.3.4 的離線 UI 選擇與原生 SAVE 實驗已建立 `snapshot.11` 的輸出 BUS／MAIN／MTX 左右交錯編碼、USR 1–24 的處理後 strip 來源，以及 USR 25–56 的原始輸入 patch 形狀。`user.tap=PRE` 在 CH／AUX 的介面是 **TAP**，不能統一解釋為 pre-fader；左右／加總由 `user.lr` 另存。原始來源直接 patch 到輸出時，工具會呈現直通關係，不能將它算成使用相同輸入的處理通道之下游。
+
+輸出左右側只表示 patch 選到來源的哪一側，不模擬每一級的 stereo、tap 或 DSP 行為。未知版本、未建立的群組／索引及不完整資料保留原值與未解析狀態；檔案內的輸出槽位也不是實際硬體端口驗證。查詢方式與精確界線見 [路由追蹤指南](skills/wing-session-analyzer/references/routing-guide.md)，控制實驗的公開摘錄見 [routing-experiments.json](docs/routing-experiments.json)。
 
 ## MCP 設定
 
@@ -171,7 +182,8 @@ Server 不會自動修改用戶端設定；工具請求或 client roots 不會�
 | `wing_channel` | 單一通道 |
 | `wing_search` | 搜尋參數 |
 | `wing_get_parameter` | 讀取確切 JSON Pointer |
-| `wing_routes` | 已辨識的路由關係 |
+| `wing_routes` | 由 strip 正向追蹤保存的路由與輸出 patch |
+| `wing_output_routes` | 從指定輸出 patch 反查上游來源 |
 | `wing_diff` | 文件差異；`ignoreMetadata` 預設 false |
 | `wing_findings` | 可能的設定問題 |
 | `wing_scenes` | Show scene 清單 |
@@ -181,7 +193,7 @@ Server 不會自動修改用戶端設定；工具請求或 client roots 不會�
 | `wing_batch` | 明確檔案清單的逐份報告與錯誤 |
 | `wing_index` | 來源索引與精確內容重複分組 |
 
-共 14 個工具，參數以 MCP 公開的 schema 為準。MCP 回傳 JSON，不寫入報告。服務只讀取本地檔案；不抓取 URL、不執行 notes、MIDI 文字或檔名，不尋找網路上的控台。
+共 15 個工具，參數以 MCP 公開的 schema 為準。MCP 回傳 JSON，不寫入報告。服務只讀取本地檔案；不抓取 URL、不執行 notes、MIDI 文字或檔名，不尋找網路上的控台。
 
 ## 如何解讀結果
 
@@ -203,8 +215,8 @@ npm test
 npm run doctor
 ```
 
-`npm run doctor` 不需參數，使用合成場次實際檢查 report／compare／batch／index／pack、14 個工具的 MCP stdio 接入，以及來源保持原樣；結果可在接收真實場次前用來核對本機工具是否可運作。它不改動全域設定，也不連接實體控台。
+`npm run doctor` 不需參數，使用合成場次實際檢查 report／compare／batch／index／pack、正反向輸出路由、15 個工具的 MCP stdio 接入，以及來源保持原樣；結果可在接收真實場次前用來核對本機工具是否可運作。它不改動全域設定，也不連接實體控台。
 
-測試使用合成資料，涵蓋解析、查詢、差異、本地路徑邊界及介面行為；它們不取代原廠軟體或實體控台驗證。此 repo 不包含 Wing Edit 安裝包、原廠完整模板或真實客戶場次。
+測試使用合成資料與離線控制實驗的最小參數摘錄，涵蓋解析、查詢、差異、本地路徑邊界及介面行為；它們不取代實體控台驗證。原生 Wing Edit SAVE 僅證實實驗中的檔案保存行為。此 repo 不包含 Wing Edit 安裝包、原廠完整模板或真實客戶場次。
 
-核心位於 skill 內的 `scripts/lib/analysis.mjs`、`reports.mjs` 與 `service.mjs`；CLI 是 `scripts/wing-session.mjs`。Repository 的 `bin/` 提供分析與報告封裝入口，`src/mcp.mjs` 提供 MCP 介面。修改共用核心時應同步驗證 CLI 與 MCP，避免兩種介面解讀相同文件卻得到不同結果。
+核心位於 skill 內的 `scripts/lib/analysis.mjs`、`routing.mjs`、`reports.mjs` 與 `service.mjs`；CLI 是 `scripts/wing-session.mjs`。Repository 的 `bin/` 提供分析與報告封裝入口，`src/mcp.mjs` 提供 MCP 介面。修改共用核心時應同步驗證 CLI 與 MCP，避免兩種介面解讀相同文件卻得到不同結果。

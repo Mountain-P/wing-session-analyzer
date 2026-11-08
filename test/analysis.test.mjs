@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseWingDocument, inspectDocument, listChannels, getChannel, searchParameters,
-  getParameter, traceRoutes, diffDocuments, analyzeFindings, listScenes,
+  getParameter, traceRoutes, traceOutputRoutes, diffDocuments, analyzeFindings, listScenes,
 } from '../skills/wing-session-analyzer/scripts/lib/analysis.mjs';
 
 // Handcrafted, small synthetic fixtures. No OEM templates or real identifiers.
@@ -180,14 +180,18 @@ test('trace follows enabled channel→bus/main→matrix structural links without
   assert.ok(trace.edges.every(edge => typeof edge.sourcePointer === 'string'));
 });
 
-test('output interleaving and direct-source tokens remain unresolved rather than fabricated', () => {
+test('verified output interleaving is decoded while unknown direct-input tokens remain unresolved', () => {
   const raw = fixture(); raw.ae_data.mtx['1'].dir = { on: true, in: 'BUS.3', lvl: 0 };
+  raw.ae_data.io.out.LCL['2'].in = 2;
   const trace = traceRoutes(parseWingDocument(raw));
-  const output = trace.unresolved.find(item => item.code === 'OUTPUT_SOURCE_INDEX_UNVERIFIED' && item.raw.grp === 'BUS');
-  assert.equal(output.raw.in, 3);
+  const output = trace.edges.find(edge => edge.kind === 'output_patch' && edge.to === 'output:LCL:2');
+  assert.equal(output.from, 'bus:1'); assert.equal(output.side, 'R');
   assert.equal(output.sourcePointer, '/ae_data/io/out/LCL/2');
-  assert.ok(trace.unresolved.some(item => item.code === 'DIRECT_SOURCE_TOKEN_UNRESOLVED'));
-  assert.ok(!trace.edges.some(edge => edge.to.startsWith('output:')), 'no physical output side guessed');
+  assert.ok(trace.unresolved.some(item => item.code === 'DIRECT_INPUT_TOKEN_UNRESOLVED'));
+  assert.ok(!trace.edges.some(edge => edge.to === 'output:LCL:1'), 'MAIN2 is not a reachable output merely because MAIN1 is reached');
+  raw.ae_data.io.out.LCL['1'].in = 9;
+  const unknown = traceOutputRoutes(parseWingDocument(raw), { bank: 'LCL', number: 1 });
+  assert.ok(unknown.unresolved.some(item => item.code === 'OUTPUT_SOURCE_UNRESOLVED' && item.status === 'invalid_index'));
 });
 
 test('trace handles cycles, missing targets and depth bounds deterministically', () => {
