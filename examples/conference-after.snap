@@ -1,0 +1,270 @@
+{
+  "type": "snapshot.11",
+  "creator_model": "wing-fullsize",
+  "creator_name": "Synthetic conference analysis example",
+  "creator_sn": "SYNTHETIC",
+  "created": "2026-11-08 13:00:00",
+  "info_text": "Hand-written minimal analysis fixture. Not a complete or recall-ready console snapshot.",
+  "ae_data": {
+    "io": {
+      "in": {
+        "LCL": {
+          "1": {
+            "name": "Lectern",
+            "mode": "M",
+            "g": 18,
+            "vph": true,
+            "mute": false
+          },
+          "2": {
+            "name": "Wireless 1",
+            "mode": "M",
+            "g": 6,
+            "vph": false,
+            "mute": false
+          },
+          "4": {
+            "name": "Backup",
+            "mode": "M",
+            "g": 0,
+            "vph": false,
+            "mute": false
+          }
+        },
+        "USB": {
+          "1": {
+            "name": "Remote return",
+            "mode": "M",
+            "mute": false
+          },
+          "9": {
+            "name": "Playback",
+            "mode": "M",
+            "mute": false
+          }
+        }
+      },
+      "out": {
+        "LCL": {
+          "7": {
+            "grp": "MAIN",
+            "in": 1
+          },
+          "8": {
+            "grp": "MAIN",
+            "in": 2
+          }
+        },
+        "USB": {
+          "1": {
+            "grp": "BUS",
+            "in": 1
+          }
+        }
+      }
+    },
+    "ch": {
+      "1": {
+        "name": "HOST",
+        "clink": false,
+        "col": 1,
+        "mute": false,
+        "fdr": 0,
+        "pan": 0,
+        "in": {
+          "set": {
+            "altsrc": false,
+            "srcauto": false
+          },
+          "conn": {
+            "grp": "LCL",
+            "in": 1,
+            "altgrp": "OFF",
+            "altin": 1
+          }
+        },
+        "flt": {
+          "lc": true,
+          "lcf": 100,
+          "hc": false
+        },
+        "eq": {
+          "on": false,
+          "mdl": "STD",
+          "1f": 250,
+          "1g": 0,
+          "1q": 1
+        },
+        "main": {
+          "1": {
+            "on": true,
+            "lvl": 0,
+            "pre": false
+          }
+        },
+        "send": {
+          "1": {
+            "on": true,
+            "lvl": 0,
+            "mode": "PRE"
+          }
+        }
+      },
+      "2": {
+        "name": "PANEL",
+        "clink": true,
+        "col": 1,
+        "mute": true,
+        "fdr": -3,
+        "in": {
+          "set": {
+            "altsrc": false,
+            "srcauto": false
+          },
+          "conn": {
+            "grp": "LCL",
+            "in": 2,
+            "altgrp": "OFF",
+            "altin": 1
+          }
+        },
+        "flt": {
+          "lc": true,
+          "lcf": 120
+        },
+        "eq": {
+          "on": true,
+          "mdl": "STD",
+          "1f": 250,
+          "1g": -3,
+          "1q": 1
+        },
+        "main": {
+          "1": {
+            "on": true,
+            "lvl": 0,
+            "pre": false
+          }
+        },
+        "send": {
+          "1": {
+            "on": true,
+            "lvl": -6,
+            "mode": "PRE"
+          }
+        }
+      },
+      "3": {
+        "name": "REMOTE",
+        "clink": false,
+        "mute": true,
+        "fdr": 0,
+        "in": {
+          "set": {
+            "altsrc": false,
+            "srcauto": false
+          },
+          "conn": {
+            "grp": "USB",
+            "in": 1,
+            "altgrp": "OFF",
+            "altin": 1
+          }
+        },
+        "flt": {
+          "lc": false,
+          "lcf": 100
+        },
+        "eq": {
+          "on": false,
+          "mdl": "STD"
+        },
+        "main": {
+          "1": {
+            "on": true,
+            "lvl": 0,
+            "pre": false
+          }
+        },
+        "send": {
+          "1": {
+            "on": false,
+            "lvl": -144,
+            "mode": "PRE"
+          }
+        },
+        "preins": null
+      },
+      "4": {
+        "name": "PLAY",
+        "clink": true,
+        "mute": false,
+        "fdr": -144,
+        "in": {
+          "set": {
+            "altsrc": true,
+            "srcauto": false
+          },
+          "conn": {
+            "grp": "LCL",
+            "in": 4,
+            "altgrp": "USB",
+            "altin": 9
+          }
+        },
+        "main": {
+          "1": {
+            "on": true,
+            "lvl": 0,
+            "pre": false
+          }
+        },
+        "send": {}
+      }
+    },
+    "bus": {
+      "1": {
+        "name": "Remote mix-minus",
+        "mute": false,
+        "fdr": -6,
+        "main": {
+          "1": {
+            "on": false,
+            "lvl": 0
+          }
+        },
+        "send": {}
+      }
+    },
+    "main": {
+      "1": {
+        "name": "PA",
+        "mute": false,
+        "fdr": 0,
+        "send": {
+          "MX1": {
+            "on": true,
+            "lvl": 0,
+            "pre": false
+          }
+        }
+      }
+    },
+    "mtx": {
+      "1": {
+        "name": "Record plan",
+        "mute": false,
+        "fdr": -6
+      }
+    }
+  },
+  "ae_globals": {
+    "clkrate": 48000,
+    "clksrc": "INT"
+  },
+  "ce_data": {
+    "safes": {
+      "note": "Synthetic placeholder, do not interpret as recall permissions."
+    }
+  }
+}

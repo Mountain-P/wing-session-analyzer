@@ -1,0 +1,11 @@
+{
+  "type": "showfile.1",
+  "creator_name": "Synthetic asset-check example",
+  "info_text": "Only a structural analysis fixture; not a show ready for recall.",
+  "scenes": {
+    "count": 3,
+    "1": { "name": "Opening", "file": "conference.snap", "skip": false, "link": false, "tag": "10" },
+    "2": { "name": "Panel discussion", "file": "missing-panel.snip", "skip": false, "link": false, "tag": "20" },
+    "3": { "name": "External reference example", "file": "https://invalid.example/never-fetch.snap", "skip": true }
+  }
+}

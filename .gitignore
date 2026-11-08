@@ -1,0 +1,9 @@
+node_modules/
+coverage/
+.DS_Store
+*.log
+local-sessions/
+outputs/
+.env
+.env.*
+qa-local/
